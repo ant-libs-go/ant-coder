@@ -12,25 +12,30 @@ import (
 	"github.com/go-xorm/builder"
 )
 
-type DBTaskSearch struct {
-	DBTaskQuery
-	Ids    []int32
-	LastId int32
+type UserSearch struct {
+	User
+	Ids      []int32
+	LastId   int32
+	PageSize int
 }
 
-func NewDBTaskSearch() *DBTaskSearch {
-	o := &DBTaskSearch{}
+func NewSearch() *UserSearch {
+	o := &UserSearch{}
+	o.PageSize = 10
 	return o
 }
 
-func (this *DBTaskSearch) load(inp interface{}) {
-	util.Assign(inp, this)
+func (this *UserSearch) Load(inp interface{}, excludes ...string) *UserSearch {
+	util.Assign(inp, this, excludes...)
+	return this
 }
 
-func (this *DBTaskSearch) Search(params interface{}) (r []*DBTask, r2 map[int32]*DBTask, err error) {
-	query := NewDBTaskQuery().Active().OrderBy("id DESC").Limit(10)
-	this.load(params)
+func (this *UserSearch) Search() (r []*User, r2 map[int32]*User, err error) {
+	query := New().Active().OrderBy("id DESC").Limit(this.PageSize)
 
+	if this.LastId > 0 {
+		query.And(builder.Lt{"id": this.LastId})
+	}
 	if this.Id > 0 {
 		query.And(builder.Eq{"id": this.Id})
 	}
