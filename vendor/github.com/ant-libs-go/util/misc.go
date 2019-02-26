@@ -33,9 +33,6 @@ func Assign(origin, target interface{}, excludes ...string) {
 	val_target := reflect.ValueOf(target).Elem()
 
 	for i := 0; i < val_origin.NumField(); i++ {
-		if !val_target.FieldByName(val_origin.Type().Field(i).Name).IsValid() {
-			continue
-		}
 		is_exclude := false
 		for _, col := range excludes {
 			if val_origin.Type().Field(i).Name == col {
@@ -46,11 +43,22 @@ func Assign(origin, target interface{}, excludes ...string) {
 		if is_exclude {
 			continue
 		}
+		is_valid := val_target.FieldByName(val_origin.Type().Field(i).Name).IsValid()
 		switch val_origin.Field(i).Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			if !is_valid {
+				continue
+			}
 			val_target.FieldByName(val_origin.Type().Field(i).Name).SetInt(val_origin.Field(i).Int())
 		case reflect.String:
+			if !is_valid {
+				continue
+			}
 			val_target.FieldByName(val_origin.Type().Field(i).Name).SetString(val_origin.Field(i).String())
+		case reflect.Struct:
+			Assign(val_origin.Field(i).Addr().Interface(), target, excludes...)
+		case reflect.Ptr:
+			Assign(val_origin.Field(i).Interface(), target, excludes...)
 		}
 	}
 }
@@ -184,4 +192,19 @@ func Goid() int {
 		panic(fmt.Sprintf("cannot get goroutine id: %v", err))
 	}
 	return id
+}
+
+func Serialize(inp interface{}) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	err := enc.Encode(inp)
+	if err == nil {
+		return buf.Bytes(), nil
+	}
+	return nil, err
+}
+
+func Deserialize(d []byte, inp interface{}) error {
+	dec := gob.NewDecoder(bytes.NewBuffer(d))
+	return dec.Decode(inp)
 }

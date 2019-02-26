@@ -9,7 +9,7 @@ package models
 
 import (
 	"fmt"
-	"log"
+	"os"
 	"regexp"
 	"time"
 
@@ -22,20 +22,25 @@ var (
 	Orm *xorm.Engine
 )
 
-func Init(dsn string, debug bool) {
+func Init(dsn string) error {
 	user, pawd, host, port, name, err := parseDsn(dsn)
 	if err != nil {
-		log.Fatalf("parse dsn error: %s", err)
+		return fmt.Errorf("parse dsn err: %s", err)
 	}
 	Orm, err = xorm.NewEngine("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&autocommit=true",
 		user, pawd, host, port, name))
 	if err != nil {
-		log.Fatalf("db connect error: %s", err)
+		return fmt.Errorf("db connect err: %s", err)
 	}
 	Orm.SetConnMaxLifetime(3000)
 
-	Orm.ShowSQL(debug)
+	if os.Getenv("VERBOSE") == "true" {
+		Orm.ShowSQL(true)
+	} else {
+		Orm.ShowSQL(false)
+	}
 	Orm.TZLocation, _ = time.LoadLocation("Asia/Shanghai")
+	return nil
 }
 
 func parseDsn(dsn string) (user, pawd, host, port, name string, err error) {
