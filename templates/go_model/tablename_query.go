@@ -53,7 +53,7 @@ func (this *__TABLE_NAME_CAMEL__Query) Insert(inp interface{}, session *xorm.Ses
 }
 
 // []*__TABLE_NAME_CAMEL__{}
-func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inp interface{}, session *xorm.Session) (err error) {
+func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inp []*__TABLE_NAME_CAMEL__, session *xorm.Session) (err error) {
 	for _, v := range inp {
 		v.Status = enums.InfoStatus_Normal
 	}
@@ -71,7 +71,7 @@ func (this *__TABLE_NAME_CAMEL__Query) Update(inp interface{}, session *xorm.Ses
 		return errors.New("id not set")
 	}
 	if this.isNewRecord == true {
-		__TABLE_NAME__, err = this.GetById(this.Id)
+		__TABLE_NAME__, err := this.GetById(this.Id)
 		if err != nil {
 			return fmt.Errorf("id#%d not found", this.Id)
 		}
@@ -95,7 +95,7 @@ func (this *__TABLE_NAME_CAMEL__Query) Delete(session *xorm.Session) (err error)
 		Status enums.InfoStatus
 	}{
 		Status: enums.InfoStatus_Deleted,
-	})
+	}, nil)
 }
 
 /* update all */

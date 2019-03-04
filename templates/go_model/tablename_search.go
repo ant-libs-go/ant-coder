@@ -13,19 +13,20 @@ import (
 )
 
 type Pager struct {
-	Page     int32 `form:"page"`
-	LastId   int32 `form:"last_id"`
-	PageSize int32 `form:"page_size"`
+	Page     int `form:"page"`
+	LastId   int `form:"last_id"`
+	PageSize int `form:"page_size"`
 }
 
 type __TABLE_NAME_CAMEL__Search struct {
 	__TABLE_NAME_CAMEL__
 	Pager
-	Ids []int32
+	query *__TABLE_NAME_CAMEL__Query
 }
 
 func NewSearch() *__TABLE_NAME_CAMEL__Search {
 	o := &__TABLE_NAME_CAMEL__Search{}
+	o.query = New()
 	o.PageSize = 100
 	return o
 }
@@ -36,32 +37,29 @@ func (this *__TABLE_NAME_CAMEL__Search) Load(inp interface{}, excludes ...string
 }
 
 func (this *__TABLE_NAME_CAMEL__Search) FilterIds(ids []int32) *__TABLE_NAME_CAMEL__Search {
-	this.Ids = ids
+	this.query.And(builder.Eq{"id": ids})
 	return this
 }
 
 func (this *__TABLE_NAME_CAMEL__Search) Search() (r []*__TABLE_NAME_CAMEL__, r2 map[int32]*__TABLE_NAME_CAMEL__, err error) {
-	query := New().Active().OrderBy("id DESC").Limit(this.PageSize)
+	this.query.Active().OrderBy("id DESC").Limit(this.PageSize)
 
 	if this.Id > 0 {
-		query.And(builder.Eq{"id": this.Id})
-	}
-	if this.Ids > 0 {
-		query.And(builder.Eq{"id": this.Ids})
+		this.query.And(builder.Eq{"id": this.Id})
 	}
 	if this.LastId > 0 {
-		query.And(builder.Lt{"id": this.LastId})
+		this.query.And(builder.Lt{"id": this.LastId})
 	}
 	/*
 		if len(this.Name) > 0 {
-			query.And(builder.Like{"name", this.Name})
+			this.query.And(builder.Like{"name", this.Name})
 		}
 	*/
 	if this.Page > 0 {
 		if this.Page == 0 {
 			this.Page = 1
 		}
-		query.Limit(this.PageSize, (this.Page-1)*this.PageSize)
+		this.query.Limit(this.PageSize, (this.Page-1)*this.PageSize)
 	}
-	return query.Find()
+	return this.query.Find()
 }
