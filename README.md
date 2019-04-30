@@ -6,7 +6,7 @@ code generator
 - go build
 
 ## Use
-- ant-coder -s <scene>
+- ant-coder -s [scene]
 - support scene: 
- - go\_model: A mysql model based on xorm.
- - go\_ui: An api scaffold.
+  - go\_model: A mysql model based on xorm.
+  - go\_ui: An api scaffold.
