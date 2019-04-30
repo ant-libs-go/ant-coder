@@ -14,14 +14,12 @@ import (
 	"strings"
 
 	"ant-coder/coder"
-	//"ant-coder/models"
-	//"ant-coder/models/task"
-	//"github.com/go-xorm/builder"
 )
 
 // pass through when build project, go build -ldflags "main.__version__ 1.2.1" app
 var coders = map[string]coder.Coder{
 	"go_model": coder.NewGoModelCoder(),
+	"go_ui":    coder.NewGoUiCoder(),
 }
 var (
 	__version__ string

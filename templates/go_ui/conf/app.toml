@@ -1,0 +1,19 @@
+[basic]
+	debug = true 
+	port = ":8080"
+	logFile = "conf/log.xml"
+[gc]
+	percent = 100
+[db]
+	[db.master]
+		host = ""
+		port = ""
+		user = ""
+		pawd = ""
+		name = ""
+	[db.slave]
+		host = ""
+		port = ""
+		user = ""
+		pawd = ""
+		name = ""
