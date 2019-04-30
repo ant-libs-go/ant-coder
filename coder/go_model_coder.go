@@ -10,6 +10,7 @@ package coder
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -79,7 +80,13 @@ func (this *GoModelCoder) Generate() (err error) {
 		return err
 	}
 	for _, tpl := range this.tpls {
-		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.Split(tpl.Src, "/")[2], fileNameMacros))
+		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.TrimPrefix(tpl.Src, "templates/go_model/"), fileNameMacros))
+
+		if err = Mkdir(path.Dir(tpl.Dst)); err != nil {
+			fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", path.Dir(tpl.Dst)))
+			return
+		}
+
 		if err = RenderTpl(tpl, fileContMacros); err != nil {
 			return
 		}
@@ -136,7 +143,7 @@ func (this *GoModelCoder) getTableDesc() (r string, err error) {
 
 func (this *GoModelCoder) getColType(col *core.Column) (r string, err error) {
 	if col.Name == "status" {
-		r = "enums.InfoStatus"
+		r = "InfoStatus"
 	}
 	if len(r) > 0 {
 		return

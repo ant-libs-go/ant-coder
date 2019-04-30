@@ -52,7 +52,7 @@ func Mkdir(dir string) (err error) {
 		return fmt.Errorf("check directory#%s is exist, already exist but not is directory", dir)
 	}
 	if exist == false {
-		if err = os.Mkdir(dir, os.ModePerm); err != nil {
+		if err = os.MkdirAll(dir, os.ModePerm); err != nil {
 			return fmt.Errorf("mkdir directory#%s, %+v", dir, err)
 		}
 	}
