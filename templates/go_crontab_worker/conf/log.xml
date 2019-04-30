@@ -1,0 +1,32 @@
+<!-- type 设置记录器类型 https://github.com/cihub/seelog/wiki/Logger-types-reference
+minlevel 设置日志最低级别; maxlevel 设置日志的最高级别
+也可以通过 <seelog levels="trace,info,critical"> 设置日记级别 -->
+<seelog type="asynctimer" asyncinterval="1000000" minlevel="debug" maxlevel="error">
+	<!-- <outputs> formatid 指定日志输出的格式(格式在<formats>标签中定义) -->
+	<outputs formatid="main">
+		<console/> <!-- 标签表示输出到终端 -->
+
+		<!-- <splitter> 用于细分<outputs>日志格式，内部支持:file(文件), rollingfile(滚动文件，自动清除过期),
+		buffered(日志写到内存再写到文件), smtp(发送日志到邮件), con(网络转发) -->
+
+		<!-- <rollingfile>滚动文件(定期清除过期日志)
+		formatid: 指定日志格式; type="size" 按大小; maxsize: 单日志文件最大大小; maxrools: 最大文件数 -->
+		<rollingfile formatid="main" type="date" filename="./runtime/logs/app.log"  datepattern="2006-01-02" maxrolls="30" />
+
+		<filter levels="warn">
+			<rollingfile formatid="main" type="date" filename="./runtime/logs/app.warn.log"  datepattern="2006-01-02" maxrolls="30" />
+		</filter>
+
+		<!-- <filter>用于单独处理某级别日志
+		过滤日志，把级别是error的通过邮件smtp方式发送出去(一般会发给相应的运维人员) -->
+		<filter levels="error">
+			<rollingfile formatid="main" type="date" filename="./runtime/logs/app.error.log"  datepattern="2006-01-02" maxrolls="30" />
+		</filter>
+	</outputs>
+
+	<!-- <formats> 定制日志的输出格式
+	https://github.com/cihub/seelog/wiki/Format-reference -->
+	<formats>
+		<format id="main" format="%Date(2006-01-02 15:04:05) [%LEV] [%File:%Line] %Msg%n"/>
+	</formats>
+</seelog>

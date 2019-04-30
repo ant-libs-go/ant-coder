@@ -18,8 +18,10 @@ import (
 
 // pass through when build project, go build -ldflags "main.__version__ 1.2.1" app
 var coders = map[string]coder.Coder{
-	"go_model": coder.NewGoModelCoder(),
-	"go_ui":    coder.NewGoUiCoder(),
+	"go_model":          coder.NewGoModelCoder(),
+	"go_ui":             coder.NewGoUiCoder(),
+	"go_loop_worker":    coder.NewGoLoopWorkerCoder(),
+	"go_crontab_worker": coder.NewGoCrontabWorkerCoder(),
 }
 var (
 	__version__ string

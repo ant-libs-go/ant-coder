@@ -10,3 +10,5 @@ code generator
 - support scene: 
   - go\_model: A mysql model based on xorm.
   - go\_ui: An api scaffold.
+  - go\_loop\_worker: A loop worker.
+  - go\_crontab\_worker: A crontab worker.
