@@ -5,6 +5,16 @@
 # Description:
 ####################################################################### */
 
+/**
+ * Define constant:
+ *
+ * InfoStatus
+ *   InfoStatus_Normal  0
+ *   InfoStatus_Invalid 1
+ *
+ * ErrNotFound = errors.New("record is not found")
+ */
+
 package __TABLE_NAME__
 
 import (
@@ -15,8 +25,6 @@ import (
 	"github.com/ant-libs-go/util"
 	"github.com/go-xorm/builder"
 	"github.com/go-xorm/xorm"
-	"gitlab.com/feichi/fcad_thrift/libs/go/enums"
-	//types "gitlab.com/feichi/fcad_thrift/libs/go/fcmp_passport_types"
 )
 
 type __TABLE_NAME_CAMEL__ struct {
@@ -60,6 +68,9 @@ func (this *__TABLE_NAME_CAMEL__Query) Session() (r *xorm.Session) {
 
 func (this *__TABLE_NAME_CAMEL__Query) Load(inp interface{}, excludes ...string) *__TABLE_NAME_CAMEL__Query {
 	util.Assign(inp, this, excludes...)
+	if this.Id != 0 {
+		this.isNewRecord = false
+	}
 	return this
 }
 
@@ -123,11 +134,15 @@ func (this *__TABLE_NAME_CAMEL__Query) Limit(limit int, offset ...int) *__TABLE_
 /* query */
 func (this *__TABLE_NAME_CAMEL__Query) Get() (r *__TABLE_NAME_CAMEL__, err error) {
 	r = &__TABLE_NAME_CAMEL__{}
-	if has, err := this.Session().Get(r); has == false || err != nil {
+	has, err := this.Session.Get(r)
+	if err != nil {
 		return nil, err
 	}
+	if has == false {
+		return nil, ErrNotFound
+	}
+
 	this.Load(r)
-	this.isNewRecord = false
 	return
 }
 
