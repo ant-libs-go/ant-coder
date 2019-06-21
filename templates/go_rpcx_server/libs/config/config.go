@@ -23,6 +23,7 @@ type AppConfig struct {
 	Basic *struct {
 		Debug   bool
 		Port    string
+		Node    string
 		LogFile string
 	}
 	Gc *struct {
@@ -49,7 +50,7 @@ func (this *Config) SetFile(file string) error {
 }
 
 func (this *Config) load(file string, cfg *AppConfig) error {
-	if len(file) == 0 {
+	if len(this.file) == 0 {
 		return fmt.Errorf("Config file not specified")
 	}
 	f, err := os.Open(file)

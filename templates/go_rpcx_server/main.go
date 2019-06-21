@@ -10,12 +10,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"path"
 	"runtime/debug"
 	"strings"
-	"sync"
 	"syscall"
 	"time"
 
@@ -24,7 +26,9 @@ import (
 	"__PROJECT_NAME__/models"
 
 	"github.com/cihub/seelog"
-	"github.com/robfig/cron"
+	metrics "github.com/rcrowley/go-metrics"
+	"github.com/smallnest/rpcx/server"
+	"github.com/smallnest/rpcx/serverplugin"
 )
 
 // pass through when build project, go build -ldflags "main.__version__ 1.2.1" app
@@ -32,9 +36,7 @@ var (
 	__version__ string
 	pwd         = flag.String("d", "", "work directory")
 	cfg         = flag.String("c", "conf/app.toml", "config file, relative path")
-	wg          sync.WaitGroup
-	crontab     *cron.Cron
-	exit        = make(chan int)
+	srv         *server.Server
 )
 
 func init() {
@@ -53,17 +55,17 @@ func registerSignalHandler() {
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		sig := <-c
 		fmt.Printf("Signal %d received, App is about to stop...\n", sig)
-		go crontab.Stop()
-		wg.Wait()
-		time.Sleep(time.Second)
+		srv.Close()
 		fmt.Printf("App has gone away\n")
-		close(exit)
+		//time.Sleep(time.Second)
+		//os.Exit(0)
 	}()
 }
 
 func main() {
-	fmt.Printf("Running in %s\n", *pwd)
-
+	go func() {
+		http.ListenAndServe("0.0.0.0:8899", nil)
+	}()
 	// configuration
 	fmt.Printf("Using configuration %s\n", *cfg)
 	if strings.HasPrefix(*cfg, "/") == false {
@@ -98,13 +100,41 @@ func main() {
 	// register stop listener
 	registerSignalHandler()
 
-	crontab = cron.New()
-	crontab.AddFunc("0 0 0 * * ?", func() { wg.Add(1); defer wg.Done(); handlers.NewDefaultHandler().Run() })
-	// add handler
-	crontab.Start()
+	// rpc server
+	srv = server.NewServer()
+	go func() {
+		if err := srv.Serve("tcp", config.Get().Basic.Port); err != nil {
+			fmt.Printf("App start error: %s\n", err)
+			os.Exit(-1)
+		}
+	}()
+	time.Sleep(time.Second)
+	fmt.Printf("Listening on %s\n", srv.Address().String())
 
-	fmt.Printf("App start ok, running as %d\n", os.Getpid())
-	select {
-	case <-exit:
+	host, err1 := os.Hostname()
+	_, port, err2 := net.SplitHostPort(srv.Address().String())
+	if err1 != nil || err2 != nil {
+		fmt.Printf("Host or Port parse error: %s, %s\n", err1, err2)
+		os.Exit(-1)
 	}
+	register := &serverplugin.ConsulRegisterPlugin{
+		ServiceAddress: fmt.Sprintf("tcp@%s:%s", host, port),
+		ConsulServers:  []string{"127.0.0.1:8500"},
+		BasePath:       config.Get().Basic.Node,
+		Metrics:        metrics.NewRegistry(),
+		UpdateInterval: time.Minute,
+	}
+	srv.Plugins.Add(register)
+
+	if err := srv.RegisterName("Server", handlers.NewServiceImpl(), ""); err != nil {
+		fmt.Printf("Build service error: %s\n", err)
+		os.Exit(-1)
+	}
+
+	if err := register.Start(); err != nil {
+		fmt.Printf("Register to registry error: %s\n", err)
+		os.Exit(-1)
+	}
+	fmt.Printf("App start ok, running as %d\n", os.Getpid())
+	select {}
 }

@@ -104,8 +104,9 @@ func (this *GoModelCoder) getMacros() (fileNameMacros []*Macro, fileContMacros [
 		&Macro{Key: "__TABLE_NAME__", Val: this.table},
 		&Macro{Key: "__TABLE_NAME_CAMEL__", Val: util.CamelString(this.table)},
 		&Macro{Key: "__AUTHOR__", Val: GetOptionValueByKey(this.opts, "author")},
-		&Macro{Key: "__PROJECT_NAME__", Val: GetOptionValueByKey(this.opts, "project_name")},
 		&Macro{Key: "__CREATE_DATETIME__", Val: time.Now().Format("2006-01-02 15:04:05")},
+		&Macro{Key: "__PROJECT_NAME__", Val: GetOptionValueByKey(this.opts, "project_name")},
+		&Macro{Key: "__PROJECT_NAME_CAMEL__", Val: util.CamelString(GetOptionValueByKey(this.opts, "project_name"))},
 	}
 
 	var desc string

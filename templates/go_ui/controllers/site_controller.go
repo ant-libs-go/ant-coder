@@ -1,6 +1,6 @@
 /* ######################################################################
-# Author: (zfly1207@126.com)
-# Created Time: 2018-09-15 08:34:12
+# Author: (__AUTHOR__)
+# Created Time: __CREATE_DATETIME__
 # File Name: site_controller.go
 # Description:
 ####################################################################### */
