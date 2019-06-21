@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/ant-libs-go/util"
 )
@@ -25,6 +26,9 @@ func NewGoCrontabWorkerCoder() *GoCrontabWorkerCoder {
 	o := &GoCrontabWorkerCoder{}
 	o.opts = []*Option{
 		&Option{
+			Name:  "author",
+			Usage: "Input author name:"},
+		&Option{
 			Name:  "project_name",
 			Usage: "Input project name:"},
 	}
@@ -32,7 +36,7 @@ func NewGoCrontabWorkerCoder() *GoCrontabWorkerCoder {
 		&Tpl{Src: "templates/go_crontab_worker/conf/app.toml"},
 		&Tpl{Src: "templates/go_crontab_worker/conf/log.xml"},
 		&Tpl{Src: "templates/go_crontab_worker/handlers/handlers.go"},
-		&Tpl{Src: "templates/go_crontab_worker/handlers/mark_overdue_handler.go"},
+		&Tpl{Src: "templates/go_crontab_worker/handlers/default_handler.go"},
 		&Tpl{Src: "templates/go_crontab_worker/libs/config/config.go"},
 		&Tpl{Src: "templates/go_crontab_worker/libs/types.go"},
 		&Tpl{Src: "templates/go_crontab_worker/models/models.go"},
@@ -85,6 +89,8 @@ func (this *GoCrontabWorkerCoder) Generate() (err error) {
 func (this *GoCrontabWorkerCoder) getMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
 	fileNameMacros = []*Macro{}
 	fileContMacros = []*Macro{
+		&Macro{Key: "__AUTHOR__", Val: GetOptionValueByKey(this.opts, "author")},
+		&Macro{Key: "__CREATE_DATETIME__", Val: time.Now().Format("2006-01-02 15:04:05")},
 		&Macro{Key: "__PROJECT_NAME__", Val: GetOptionValueByKey(this.opts, "project_name")},
 		&Macro{Key: "__PROJECT_NAME_CAMEL__", Val: util.CamelString(GetOptionValueByKey(this.opts, "project_name"))},
 	}

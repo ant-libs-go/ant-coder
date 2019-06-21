@@ -1,7 +1,7 @@
 /* ######################################################################
 # Author: (zfly1207@126.com)
-# Created Time: 2019-04-30 02:37:16
-# File Name: go_ui_coder.go
+# Created Time: 2019-06-21 03:57:08
+# File Name: go_rpcx_server_coder.go
 # Description:
 ####################################################################### */
 
@@ -17,13 +17,13 @@ import (
 	"github.com/ant-libs-go/util"
 )
 
-type GoUiCoder struct {
+type GoRpcxServerCoder struct {
 	opts []*Option
 	tpls []*Tpl
 }
 
-func NewGoUiCoder() *GoUiCoder {
-	o := &GoUiCoder{}
+func NewGoRpcxServerCoder() *GoRpcxServerCoder {
+	o := &GoRpcxServerCoder{}
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
@@ -33,33 +33,30 @@ func NewGoUiCoder() *GoUiCoder {
 			Usage: "Input project name:"},
 	}
 	o.tpls = []*Tpl{
-		&Tpl{Src: "templates/go_ui/conf/app.toml"},
-		&Tpl{Src: "templates/go_ui/conf/log.xml"},
-		&Tpl{Src: "templates/go_ui/controllers/controllers.go"},
-		&Tpl{Src: "templates/go_ui/controllers/site_controller.go"},
-		&Tpl{Src: "templates/go_ui/libs/config/config.go"},
-		&Tpl{Src: "templates/go_ui/libs/middlewares/logger.go"},
-		&Tpl{Src: "templates/go_ui/libs/context.go"},
-		&Tpl{Src: "templates/go_ui/libs/enums.go"},
-		&Tpl{Src: "templates/go_ui/libs/types.go"},
-		&Tpl{Src: "templates/go_ui/models/models.go"},
-		&Tpl{Src: "templates/go_ui/.gitignore"},
-		&Tpl{Src: "templates/go_ui/control.sh"},
-		&Tpl{Src: "templates/go_ui/main.go"},
-		&Tpl{Src: "templates/go_ui/server.go"},
+		&Tpl{Src: "templates/go_rpcx_server/conf/app.toml"},
+		&Tpl{Src: "templates/go_rpcx_server/conf/log.xml"},
+		&Tpl{Src: "templates/go_rpcx_server/handlers/handlers.go"},
+		&Tpl{Src: "templates/go_rpcx_server/handlers/default_handler.go"},
+		&Tpl{Src: "templates/go_rpcx_server/libs/config/config.go"},
+		&Tpl{Src: "templates/go_rpcx_server/libs/types.go"},
+		&Tpl{Src: "templates/go_rpcx_server/models/models.go"},
+		&Tpl{Src: "templates/go_rpcx_server/.gitignore"},
+		&Tpl{Src: "templates/go_rpcx_server/control.sh"},
+		&Tpl{Src: "templates/go_rpcx_server/main.go"},
+		&Tpl{Src: "templates/go_rpcx_server/test/client.go"},
 	}
 	return o
 }
 
-func (this *GoUiCoder) GetOptions() (r []*Option) {
+func (this *GoRpcxServerCoder) GetOptions() (r []*Option) {
 	return this.opts
 }
 
-func (this *GoUiCoder) Init() (err error) {
+func (this *GoRpcxServerCoder) Init() (err error) {
 	return
 }
 
-func (this *GoUiCoder) Generate() (err error) {
+func (this *GoRpcxServerCoder) Generate() (err error) {
 	// mkdir dir
 	dir := fmt.Sprintf("%s/%s", os.Getenv("WORKDIR"), GetOptionValueByKey(this.opts, "project_name"))
 	if err = Mkdir(dir); err != nil {
@@ -74,7 +71,7 @@ func (this *GoUiCoder) Generate() (err error) {
 		return err
 	}
 	for _, tpl := range this.tpls {
-		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.TrimPrefix(tpl.Src, "templates/go_ui/"), fileNameMacros))
+		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.TrimPrefix(tpl.Src, "templates/go_rpcx_server/"), fileNameMacros))
 
 		if err = Mkdir(path.Dir(tpl.Dst)); err != nil {
 			fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", path.Dir(tpl.Dst)))
@@ -90,7 +87,7 @@ func (this *GoUiCoder) Generate() (err error) {
 	return
 }
 
-func (this *GoUiCoder) getMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
+func (this *GoRpcxServerCoder) getMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
 	fileNameMacros = []*Macro{}
 	fileContMacros = []*Macro{
 		&Macro{Key: "__AUTHOR__", Val: GetOptionValueByKey(this.opts, "author")},

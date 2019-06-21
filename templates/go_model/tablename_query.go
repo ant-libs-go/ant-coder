@@ -9,7 +9,6 @@ package __TABLE_NAME__
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/go-xorm/builder"
 	"github.com/go-xorm/xorm"

@@ -22,6 +22,7 @@ var coders = map[string]coder.Coder{
 	"go_ui":             coder.NewGoUiCoder(),
 	"go_loop_worker":    coder.NewGoLoopWorkerCoder(),
 	"go_crontab_worker": coder.NewGoCrontabWorkerCoder(),
+	"go_rpcx_server":    coder.NewGoRpcxServerCoder(),
 }
 var (
 	__version__ string

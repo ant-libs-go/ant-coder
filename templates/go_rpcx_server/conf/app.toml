@@ -1,0 +1,20 @@
+[basic]
+	debug = true 
+	port = ""
+	node = "/__PROJECT_NAME__"
+	logFile = "conf/log.xml"
+[gc]
+	percent = 100
+[db]
+	[db.master]
+		host = ""
+		port = ""
+		user = ""
+		pawd = ""
+		name = ""
+	[db.slave]
+		host = ""
+		port = ""
+		user = ""
+		pawd = ""
+		name = ""

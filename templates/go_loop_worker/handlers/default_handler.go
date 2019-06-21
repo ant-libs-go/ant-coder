@@ -1,7 +1,7 @@
 /* ######################################################################
-# Author: (zfly1207@126.com)
-# Created Time: 2018-12-25 17:35:54
-# File Name: mark_overdue_handler.go
+# Author: (__AUTHOR__)
+# Created Time: __CREATE_DATETIME__
+# File Name: default_handler.go
 # Description:
 ####################################################################### */
 
@@ -12,19 +12,19 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type MarkOverdueHandler struct {
+type DefaultHandler struct {
 	Name string
 	log  *logs.SessLog
 }
 
-func NewMarkOverdueHandler() *MarkOverdueHandler {
-	o := &MarkOverdueHandler{}
-	o.Name = "MARK_OVERDUE_HANDLER"
+func NewDefaultHandler() *DefaultHandler {
+	o := &DefaultHandler{}
+	o.Name = "DEFAULT_HANDLER"
 	o.log = logs.New(uuid.NewV4().String())
 	return o
 }
 
-func (this *MarkOverdueHandler) Run() {
+func (this *DefaultHandler) Run() {
 	this.log.Infof("Recall#%s...", this.Name)
 
 	// code in here...
