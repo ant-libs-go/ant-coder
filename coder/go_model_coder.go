@@ -144,7 +144,7 @@ func (this *GoModelCoder) getTableDesc() (r string, err error) {
 
 func (this *GoModelCoder) getColType(col *core.Column) (r string, err error) {
 	if col.Name == "status" {
-		r = "InfoStatus"
+		r = "models.InfoStatus"
 	}
 	if len(r) > 0 {
 		return

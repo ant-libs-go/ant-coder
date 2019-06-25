@@ -134,12 +134,12 @@ func (this *__TABLE_NAME_CAMEL__Query) Limit(limit int, offset ...int) *__TABLE_
 /* query */
 func (this *__TABLE_NAME_CAMEL__Query) Get() (r *__TABLE_NAME_CAMEL__, err error) {
 	r = &__TABLE_NAME_CAMEL__{}
-	has, err := this.Session.Get(r)
+	has, err := this.Session().Get(r)
 	if err != nil {
 		return nil, err
 	}
 	if has == false {
-		return nil, ErrNotFound
+		return nil, models.ErrNotFound
 	}
 
 	this.Load(r)

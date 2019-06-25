@@ -10,13 +10,15 @@ package __TABLE_NAME__
 import (
 	"errors"
 
+	"__PROJECT_NAME__/models"
+
 	"github.com/go-xorm/builder"
 	"github.com/go-xorm/xorm"
 )
 
 // r, r2, err := query.Active().Find()
 func (this *__TABLE_NAME_CAMEL__Query) Active() *__TABLE_NAME_CAMEL__Query {
-	return this.And(builder.Eq{"status": InfoStatus_Normal})
+	return this.And(builder.Eq{"status": models.InfoStatusNormal})
 }
 
 /* query */
@@ -41,7 +43,7 @@ func (this *__TABLE_NAME_CAMEL__Query) FindByIds(ids []int32) (r []*__TABLE_NAME
 // &__TABLE_NAME_CAMEL__{}
 func (this *__TABLE_NAME_CAMEL__Query) Insert(inp interface{}, session *xorm.Session) (err error) {
 	this.Load(inp)
-	this.Status = InfoStatus_Normal
+	this.Status = models.InfoStatusNormal
 
 	if session != nil {
 		this.session = session
@@ -53,7 +55,7 @@ func (this *__TABLE_NAME_CAMEL__Query) Insert(inp interface{}, session *xorm.Ses
 // []*__TABLE_NAME_CAMEL__{}
 func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inp []*__TABLE_NAME_CAMEL__, session *xorm.Session) (err error) {
 	for _, v := range inp {
-		v.Status = InfoStatus_Normal
+		v.Status = models.InfoStatusNormal
 	}
 
 	if session != nil {
@@ -89,9 +91,9 @@ func (this *__TABLE_NAME_CAMEL__Query) Delete(session *xorm.Session) (err error)
 		this.session = session
 	}
 	return this.Cols("status").Update(&struct {
-		Status InfoStatus
+		Status models.InfoStatus
 	}{
-		Status: InfoStatus_Invalid,
+		Status: models.InfoStatusInvalid,
 	}, nil)
 }
 
