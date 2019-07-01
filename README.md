@@ -8,8 +8,8 @@ code generator
 ## Use
 - ant-coder -s [scene]
 - support scene: 
-  - go\_model: A mysql model based on xorm.
-  - go\_ui: An api scaffold.
-  - go\_loop\_worker: A loop worker.
-  - go\_crontab\_worker: A crontab worker.
-  - go\_rpcx\_server: A rpcx server, see: https://github.com/smallnest/rpcx.
+  - go\_model: mysql model based on xorm.
+  - go\_ui: api scaffold.
+  - go\_loop\_worker: loop worker.
+  - go\_crontab\_worker: crontab worker.
+  - go\_rpcx\_server: rpcx server, see: https://github.com/smallnest/rpcx.
