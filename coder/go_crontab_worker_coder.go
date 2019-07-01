@@ -8,10 +8,6 @@
 package coder
 
 import (
-	"fmt"
-	"os"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/ant-libs-go/util"
@@ -27,22 +23,23 @@ func NewGoCrontabWorkerCoder() *GoCrontabWorkerCoder {
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
-			Usage: "Input author name:"},
+			Usage: "Input author name:",
+			Cache: true},
 		&Option{
 			Name:  "project_name",
 			Usage: "Input project name:"},
 	}
 	o.tpls = []*Tpl{
-		&Tpl{Src: "templates/go_crontab_worker/conf/app.toml"},
-		&Tpl{Src: "templates/go_crontab_worker/conf/log.xml"},
-		&Tpl{Src: "templates/go_crontab_worker/handlers/handlers.go"},
-		&Tpl{Src: "templates/go_crontab_worker/handlers/default_handler.go"},
-		&Tpl{Src: "templates/go_crontab_worker/libs/config/config.go"},
-		&Tpl{Src: "templates/go_crontab_worker/libs/types.go"},
-		&Tpl{Src: "templates/go_crontab_worker/models/models.go"},
-		&Tpl{Src: "templates/go_crontab_worker/.gitignore"},
-		&Tpl{Src: "templates/go_crontab_worker/control.sh"},
-		&Tpl{Src: "templates/go_crontab_worker/main.go"},
+		&Tpl{Src: "templates/go_crontab_worker/conf/app.toml", Dst: "conf/app.toml"},
+		&Tpl{Src: "templates/go_crontab_worker/conf/log.xml", Dst: "conf/log.xml"},
+		&Tpl{Src: "templates/go_crontab_worker/handlers/handlers.go", Dst: "handlers/handlers.go"},
+		&Tpl{Src: "templates/go_crontab_worker/handlers/default_handler.go", Dst: "handlers/default_handler.go"},
+		&Tpl{Src: "templates/go_crontab_worker/libs/config/config.go", Dst: "libs/config/config.go"},
+		&Tpl{Src: "templates/go_crontab_worker/libs/types.go", Dst: "libs/types.go"},
+		&Tpl{Src: "templates/go_crontab_worker/models/models.go", Dst: "models/models.go"},
+		&Tpl{Src: "templates/go_crontab_worker/.gitignore", Dst: ".gitignore"},
+		&Tpl{Src: "templates/go_crontab_worker/control.sh", Dst: "control.sh"},
+		&Tpl{Src: "templates/go_crontab_worker/main.go", Dst: "main.go"},
 	}
 	return o
 }
@@ -51,42 +48,19 @@ func (this *GoCrontabWorkerCoder) GetOptions() (r []*Option) {
 	return this.opts
 }
 
+func (this *GoCrontabWorkerCoder) GetTpls() (r []*Tpl) {
+	return this.tpls
+}
+
 func (this *GoCrontabWorkerCoder) Init() (err error) {
 	return
 }
 
-func (this *GoCrontabWorkerCoder) Generate() (err error) {
-	// mkdir dir
-	dir := fmt.Sprintf("%s/%s", os.Getenv("WORKDIR"), GetOptionValueByKey(this.opts, "project_name"))
-	if err = Mkdir(dir); err != nil {
-		fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", dir))
-		return
-	}
-	fmt.Println("....... directory mkdir\t[ok]")
-
-	// render tpl
-	fileNameMacros, fileContMacros, err := this.getMacros()
-	if err != nil {
-		return err
-	}
-	for _, tpl := range this.tpls {
-		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.TrimPrefix(tpl.Src, "templates/go_crontab_worker/"), fileNameMacros))
-
-		if err = Mkdir(path.Dir(tpl.Dst)); err != nil {
-			fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", path.Dir(tpl.Dst)))
-			return
-		}
-
-		if err = RenderTpl(tpl, fileContMacros); err != nil {
-			return
-		}
-	}
-	fmt.Println("....... render template\t[ok]")
-
-	return
+func (this *GoCrontabWorkerCoder) GetBaseDirName() (r string) {
+	return GetOptionValueByKey(this.opts, "project_name")
 }
 
-func (this *GoCrontabWorkerCoder) getMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
+func (this *GoCrontabWorkerCoder) GetMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
 	fileNameMacros = []*Macro{}
 	fileContMacros = []*Macro{
 		&Macro{Key: "__AUTHOR__", Val: GetOptionValueByKey(this.opts, "author")},
