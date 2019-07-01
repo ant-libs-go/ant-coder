@@ -1,5 +1,5 @@
 /* ######################################################################
-# Author: (zhengfei@fcadx.cn)
+# Author: (zfly1207@126.com)
 # Created Time: 2019-02-20 14:28:16
 # File Name: go_model_coder.go
 # Description:
@@ -9,8 +9,6 @@ package coder
 
 import (
 	"fmt"
-	"os"
-	"path"
 	"strings"
 	"time"
 
@@ -21,41 +19,52 @@ import (
 )
 
 type GoModelCoder struct {
-	opts  []*Option
-	tpls  []*Tpl
-	table string
+	name string
+	opts []*Option
+	tpls []*Tpl
 }
 
 func NewGoModelCoder() *GoModelCoder {
 	o := &GoModelCoder{}
+	o.name = "go_model"
 	o.opts = []*Option{
 		&Option{
 			Name:  "dsn",
-			Usage: "Input database connect configured (format: user:pawd@host:port/name):"},
+			Usage: "Input database connect configured (format: user:pawd@host:port/name):",
+			Cache: true},
 		&Option{
 			Name:  "table",
 			Usage: "Input table name:"},
 		&Option{
 			Name:  "author",
-			Usage: "Input author name:"},
+			Usage: "Input author name:",
+			Cache: true},
 		&Option{
 			Name:  "project_name",
-			Usage: "Input project name:"},
+			Usage: "Input project name:",
+			Cache: true},
 	}
 	o.tpls = []*Tpl{
-		&Tpl{Src: "templates/go_model/tablename.go"},
-		&Tpl{Src: "templates/go_model/tablename_query.go"},
-		&Tpl{Src: "templates/go_model/tablename_search.go"},
+		&Tpl{Src: "templates/go_model/tablename.go", Dst: "tablename.go"},
+		&Tpl{Src: "templates/go_model/tablename_query.go", Dst: "tablename_query.go"},
+		&Tpl{Src: "templates/go_model/tablename_search.go", Dst: "tablename_search.go"},
 	}
 	return o
+}
+
+func (this *GoModelCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoModelCoder) GetOptions() (r []*Option) {
 	return this.opts
 }
 
+func (this *GoModelCoder) GetTpls() (r []*Tpl) {
+	return this.tpls
+}
+
 func (this *GoModelCoder) Init() (err error) {
-	this.table = GetOptionValueByKey(this.opts, "table")
 	err = models.Init(GetOptionValueByKey(this.opts, "dsn"))
 	if err != nil {
 		fmt.Println("....... model\t[no]")
@@ -65,44 +74,17 @@ func (this *GoModelCoder) Init() (err error) {
 	return
 }
 
-func (this *GoModelCoder) Generate() (err error) {
-	// mkdir dir
-	dir := fmt.Sprintf("%s/%s", os.Getenv("WORKDIR"), this.table)
-	if err = Mkdir(dir); err != nil {
-		fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", dir))
-		return
-	}
-	fmt.Println("....... directory mkdir\t[ok]")
-
-	// render tpl
-	fileNameMacros, fileContMacros, err := this.getMacros()
-	if err != nil {
-		return err
-	}
-	for _, tpl := range this.tpls {
-		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.TrimPrefix(tpl.Src, "templates/go_model/"), fileNameMacros))
-
-		if err = Mkdir(path.Dir(tpl.Dst)); err != nil {
-			fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", path.Dir(tpl.Dst)))
-			return
-		}
-
-		if err = RenderTpl(tpl, fileContMacros); err != nil {
-			return
-		}
-	}
-	fmt.Println("....... render template\t[ok]")
-
-	return
+func (this *GoModelCoder) GetBaseDirName() (r string) {
+	return GetOptionValueByKey(this.opts, "table")
 }
 
-func (this *GoModelCoder) getMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
+func (this *GoModelCoder) GetMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
 	fileNameMacros = []*Macro{
-		&Macro{Key: "tablename", Val: this.table},
+		&Macro{Key: "tablename", Val: GetOptionValueByKey(this.opts, "table")},
 	}
 	fileContMacros = []*Macro{
-		&Macro{Key: "__TABLE_NAME__", Val: this.table},
-		&Macro{Key: "__TABLE_NAME_CAMEL__", Val: util.CamelString(this.table)},
+		&Macro{Key: "__TABLE_NAME__", Val: GetOptionValueByKey(this.opts, "table")},
+		&Macro{Key: "__TABLE_NAME_CAMEL__", Val: util.CamelString(GetOptionValueByKey(this.opts, "table"))},
 		&Macro{Key: "__AUTHOR__", Val: GetOptionValueByKey(this.opts, "author")},
 		&Macro{Key: "__CREATE_DATETIME__", Val: time.Now().Format("2006-01-02 15:04:05")},
 		&Macro{Key: "__PROJECT_NAME__", Val: GetOptionValueByKey(this.opts, "project_name")},
@@ -123,7 +105,7 @@ func (this *GoModelCoder) getTableDesc() (r string, err error) {
 	fields := []string{}
 	tables, _ := models.Orm.DBMetas()
 	for _, table := range tables {
-		if table.Name != this.table {
+		if table.Name != GetOptionValueByKey(this.opts, "table") {
 			continue
 		}
 		for _, col := range table.Columns() {

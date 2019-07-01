@@ -1,5 +1,5 @@
 /* ######################################################################
-# Author: (zhengfei@fcadx.cn)
+# Author: (zfly1207@126.com)
 # Created Time: 2019-02-20 14:27:22
 # File Name: coder.go
 # Description:
@@ -9,6 +9,10 @@ package coder
 
 import (
 	"fmt"
+	"os"
+	"path"
+
+	"ant-coder/coder/config"
 )
 
 type Option struct {
@@ -16,6 +20,7 @@ type Option struct {
 	Default string
 	Value   string
 	Usage   string
+	Cache   bool
 }
 
 type Tpl struct {
@@ -28,9 +33,12 @@ type Macro struct {
 }
 
 type Coder interface {
+	GetName() (r string)
 	GetOptions() (r []*Option)
+	GetTpls() (r []*Tpl)
 	Init() (err error)
-	Generate() (err error)
+	GetBaseDirName() (r string)
+	GetMacros() (r []*Macro, r2 []*Macro, err error)
 }
 
 type Executor struct {
@@ -58,7 +66,7 @@ func (this *Executor) Do() (err error) {
 		return fmt.Errorf("\ncoder init err: %+v\n", err)
 	}
 	fmt.Println("\nCoder Generate...")
-	if err = this.coder.Generate(); err != nil {
+	if err = this.generate(); err != nil {
 		return fmt.Errorf("\ncoder generate err: %+v\n", err)
 	}
 	fmt.Println("\nDone...")
@@ -67,6 +75,9 @@ func (this *Executor) Do() (err error) {
 
 func (this *Executor) inputOptions() (err error) {
 	for _, opt := range this.opts {
+		if opt.Cache == true {
+			opt.Default = config.Get(this.coder.GetName(), opt.Name, opt.Default)
+		}
 		var tips string
 		if len(opt.Default) > 0 {
 			tips = fmt.Sprintf("%s [%s] ", opt.Usage, opt.Default)
@@ -75,11 +86,14 @@ func (this *Executor) inputOptions() (err error) {
 		}
 
 		opt.Value = Scan(tips)
-		if len(opt.Value) > 0 {
-			continue
+		if len(opt.Value) == 0 {
+			opt.Value = opt.Default
 		}
-		opt.Value = opt.Default
+		if opt.Cache == true {
+			config.Set(this.coder.GetName(), opt.Name, opt.Value)
+		}
 	}
+	config.Save()
 	return
 }
 
@@ -99,5 +113,33 @@ func (this *Executor) validOptions() (err error) {
 		}
 		fmt.Println(fmt.Sprintf("....... options#%s\t[ok]", opt.Name))
 	}
+	return
+}
+
+func (this *Executor) generate() (err error) {
+	// mkdir base dir
+	dir := fmt.Sprintf("%s/%s", os.Getenv("WORKDIR"), this.coder.GetBaseDirName())
+	if err = Mkdir(dir); err != nil {
+		fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", dir))
+		return
+	}
+	fmt.Println("....... directory mkdir\t[ok]")
+
+	// render tpl
+	fileNameMacros, fileContMacros, err := this.coder.GetMacros()
+	if err != nil {
+		return err
+	}
+	for _, tpl := range this.coder.GetTpls() {
+		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(tpl.Dst, fileNameMacros))
+		if err = Mkdir(path.Dir(tpl.Dst)); err != nil {
+			fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", path.Dir(tpl.Dst)))
+			return
+		}
+		if err = RenderTpl(tpl, fileContMacros); err != nil {
+			return
+		}
+	}
+	fmt.Println("....... render template\t[ok]")
 	return
 }

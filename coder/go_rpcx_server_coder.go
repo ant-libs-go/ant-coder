@@ -8,86 +8,66 @@
 package coder
 
 import (
-	"fmt"
-	"os"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/ant-libs-go/util"
 )
 
 type GoRpcxServerCoder struct {
+	name string
 	opts []*Option
 	tpls []*Tpl
 }
 
 func NewGoRpcxServerCoder() *GoRpcxServerCoder {
 	o := &GoRpcxServerCoder{}
+	o.name = "go_rpcx_server"
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
-			Usage: "Input author name:"},
+			Usage: "Input author name:",
+			Cache: true},
 		&Option{
 			Name:  "project_name",
 			Usage: "Input project name:"},
 	}
 	o.tpls = []*Tpl{
-		&Tpl{Src: "templates/go_rpcx_server/conf/app.toml"},
-		&Tpl{Src: "templates/go_rpcx_server/conf/log.xml"},
-		&Tpl{Src: "templates/go_rpcx_server/handlers/handlers.go"},
-		&Tpl{Src: "templates/go_rpcx_server/handlers/default_handler.go"},
-		&Tpl{Src: "templates/go_rpcx_server/libs/config/config.go"},
-		&Tpl{Src: "templates/go_rpcx_server/libs/types.go"},
-		&Tpl{Src: "templates/go_rpcx_server/models/models.go"},
-		&Tpl{Src: "templates/go_rpcx_server/.gitignore"},
-		&Tpl{Src: "templates/go_rpcx_server/control.sh"},
-		&Tpl{Src: "templates/go_rpcx_server/main.go"},
-		&Tpl{Src: "templates/go_rpcx_server/test/client.go"},
+		&Tpl{Src: "templates/go_rpcx_server/conf/app.toml", Dst: "conf/app.toml"},
+		&Tpl{Src: "templates/go_rpcx_server/conf/log.xml", Dst: "conf/log.xml"},
+		&Tpl{Src: "templates/go_rpcx_server/handlers/handlers.go", Dst: "handlers/handlers.go"},
+		&Tpl{Src: "templates/go_rpcx_server/handlers/default_handler.go", Dst: "handlers/default_handler.go"},
+		&Tpl{Src: "templates/go_rpcx_server/libs/config/config.go", Dst: "libs/config/config.go"},
+		&Tpl{Src: "templates/go_rpcx_server/libs/types.go", Dst: "libs/types.go"},
+		&Tpl{Src: "templates/go_rpcx_server/models/models.go", Dst: "models/models.go"},
+		&Tpl{Src: "templates/go_rpcx_server/.gitignore", Dst: ".gitignore"},
+		&Tpl{Src: "templates/go_rpcx_server/control.sh", Dst: "control.sh"},
+		&Tpl{Src: "templates/go_rpcx_server/main.go", Dst: "main.go"},
+		&Tpl{Src: "templates/go_rpcx_server/test/client.go", Dst: "test/client.go"},
 	}
 	return o
+}
+
+func (this *GoRpcxServerCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoRpcxServerCoder) GetOptions() (r []*Option) {
 	return this.opts
 }
 
+func (this *GoRpcxServerCoder) GetTpls() (r []*Tpl) {
+	return this.tpls
+}
+
 func (this *GoRpcxServerCoder) Init() (err error) {
 	return
 }
 
-func (this *GoRpcxServerCoder) Generate() (err error) {
-	// mkdir dir
-	dir := fmt.Sprintf("%s/%s", os.Getenv("WORKDIR"), GetOptionValueByKey(this.opts, "project_name"))
-	if err = Mkdir(dir); err != nil {
-		fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", dir))
-		return
-	}
-	fmt.Println("....... directory mkdir\t[ok]")
-
-	// render tpl
-	fileNameMacros, fileContMacros, err := this.getMacros()
-	if err != nil {
-		return err
-	}
-	for _, tpl := range this.tpls {
-		tpl.Dst = fmt.Sprintf("%s/%s", dir, MacroReplace(strings.TrimPrefix(tpl.Src, "templates/go_rpcx_server/"), fileNameMacros))
-
-		if err = Mkdir(path.Dir(tpl.Dst)); err != nil {
-			fmt.Println(fmt.Sprintf("....... directory#%s mkdir\t[no]", path.Dir(tpl.Dst)))
-			return
-		}
-
-		if err = RenderTpl(tpl, fileContMacros); err != nil {
-			return
-		}
-	}
-	fmt.Println("....... render template\t[ok]")
-
-	return
+func (this *GoRpcxServerCoder) GetBaseDirName() (r string) {
+	return GetOptionValueByKey(this.opts, "project_name")
 }
 
-func (this *GoRpcxServerCoder) getMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
+func (this *GoRpcxServerCoder) GetMacros() (fileNameMacros []*Macro, fileContMacros []*Macro, err error) {
 	fileNameMacros = []*Macro{}
 	fileContMacros = []*Macro{
 		&Macro{Key: "__AUTHOR__", Val: GetOptionValueByKey(this.opts, "author")},
