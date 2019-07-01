@@ -1,5 +1,3 @@
-# git.apache.org/thrift.git v0.12.0
-git.apache.org/thrift.git/lib/go/thrift
 # github.com/anacrolix/missinggo v1.1.0
 github.com/anacrolix/missinggo
 github.com/anacrolix/missinggo/inproc
@@ -187,11 +185,6 @@ github.com/vmihailenco/msgpack
 github.com/vmihailenco/msgpack/codes
 # github.com/xtaci/kcp-go v5.2.8+incompatible
 github.com/xtaci/kcp-go
-# gitlab.com/feichi/fcad_thrift v0.0.41
-gitlab.com/feichi/fcad_thrift/libs/go/common
-gitlab.com/feichi/fcad_thrift/libs/go/enums
-gitlab.com/feichi/fcad_thrift/libs/go/fcmp_passport_services
-gitlab.com/feichi/fcad_thrift/libs/go/fcmp_passport_types
 # go.opencensus.io v0.21.0
 go.opencensus.io/trace
 go.opencensus.io/internal

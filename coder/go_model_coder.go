@@ -1,5 +1,5 @@
 /* ######################################################################
-# Author: (zhengfei@fcadx.cn)
+# Author: (zfly1207@126.com)
 # Created Time: 2019-02-20 14:28:16
 # File Name: go_model_coder.go
 # Description:

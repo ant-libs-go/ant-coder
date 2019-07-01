@@ -10,11 +10,10 @@ package handlers
 import (
 	"context"
 
+	"__PROJECT_NAME__/libs"
+
 	"github.com/ant-libs-go/util/logs"
 	uuid "github.com/satori/go.uuid"
-	"gitlab.com/feichi/fcad_thrift/libs/go/common"
-	"gitlab.com/feichi/fcad_thrift/libs/go/enums"
-	services "gitlab.com/feichi/fcad_thrift/libs/go/fcmp_passport_services"
 )
 
 type ServiceImpl struct {
@@ -27,7 +26,7 @@ func NewServiceImpl() *ServiceImpl {
 	}
 }
 
-func (this *ServiceImpl) before(header *common.Header) (log *logs.SessLog) {
+func (this *ServiceImpl) before(header *libs.Header) (log *logs.SessLog) {
 	if len(header.Sessid) == 0 {
 		header.Sessid = uuid.NewV4().String()
 	}
@@ -35,15 +34,15 @@ func (this *ServiceImpl) before(header *common.Header) (log *logs.SessLog) {
 	return
 }
 
-func (this *ServiceImpl) GetByIds(ctx context.Context, req *services.GetMediaByIdsRequest, resp *services.GetMediaByIdsResponse) (err error) {
+func (this *ServiceImpl) GetByIds(ctx context.Context, req *libs.GetByIdsRequest, resp *libs.GetByIdsResponse) (err error) {
 	log := this.before(req.Header)
 	log.Infof("Request type: GetByIds, req: %v", req)
-	resp.Header = &common.Header{Sessid: req.Header.Sessid, Code: enums.ResponseCode_OK, Metadata: req.Header.Metadata}
+	resp.Header = &libs.Header{Sessid: req.Header.Sessid, Code: libs.ResponseCode_OK, Metadata: req.Header.Metadata}
 
 	r := this.DefaultHandler.GetByIds(req, log)
 	resp.Header.Code = r.Header.Code
 	resp.Body = r.Body
-	if resp.Header.Code != enums.ResponseCode_OK {
+	if resp.Header.Code != libs.ResponseCode_OK {
 		log.Warnf("Do error, code: %v", resp.Header.Code)
 		return
 	}
