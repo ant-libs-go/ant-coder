@@ -13,8 +13,7 @@ import (
 	"log"
 	"time"
 
-	"gitlab.com/feichi/fcad_thrift/libs/go/common"
-	services "gitlab.com/feichi/fcad_thrift/libs/go/fcmp_passport_services"
+	"__PROJECT_NAME__/libs"
 
 	"github.com/smallnest/rpcx/client"
 )
@@ -23,8 +22,8 @@ var (
 	method = flag.String("m", "", "call method")
 )
 
-func buildCommonHeader() *common.Header {
-	return &common.Header{
+func buildCommonHeader() *libs.Header {
+	return &libs.Header{
 		Requester: "test-client",
 		Timestamp: time.Now().Unix(),
 		Version:   100,
@@ -49,11 +48,11 @@ func run(fun string, req, resp interface{}) (r interface{}) {
 }
 
 func GetByIds() {
-	req := &services.GetByIdsRequest{
+	req := &libs.GetByIdsRequest{
 		Header: buildCommonHeader(),
 		Body:   []int32{108, 109},
 	}
-	resp := &services.GetByIdsResponse{}
+	resp := &libs.GetByIdsResponse{}
 	run("GetByIds", req, resp)
 }
 
