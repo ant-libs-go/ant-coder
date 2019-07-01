@@ -19,12 +19,14 @@ import (
 )
 
 type GoModelCoder struct {
+	name string
 	opts []*Option
 	tpls []*Tpl
 }
 
 func NewGoModelCoder() *GoModelCoder {
 	o := &GoModelCoder{}
+	o.name = "go_model"
 	o.opts = []*Option{
 		&Option{
 			Name:  "dsn",
@@ -43,11 +45,15 @@ func NewGoModelCoder() *GoModelCoder {
 			Cache: true},
 	}
 	o.tpls = []*Tpl{
-		&Tpl{Src: "templates/go_model/tablename.go", Dst: "tablename_search.go"},
-		&Tpl{Src: "templates/go_model/tablename_query.go", Dst: "tablename_search.go"},
+		&Tpl{Src: "templates/go_model/tablename.go", Dst: "tablename.go"},
+		&Tpl{Src: "templates/go_model/tablename_query.go", Dst: "tablename_query.go"},
 		&Tpl{Src: "templates/go_model/tablename_search.go", Dst: "tablename_search.go"},
 	}
 	return o
+}
+
+func (this *GoModelCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoModelCoder) GetOptions() (r []*Option) {

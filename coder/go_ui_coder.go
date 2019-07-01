@@ -14,12 +14,14 @@ import (
 )
 
 type GoUiCoder struct {
+	name string
 	opts []*Option
 	tpls []*Tpl
 }
 
 func NewGoUiCoder() *GoUiCoder {
 	o := &GoUiCoder{}
+	o.name = "go_ui"
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
@@ -46,6 +48,10 @@ func NewGoUiCoder() *GoUiCoder {
 		&Tpl{Src: "templates/go_ui/server.go", Dst: "server.go"},
 	}
 	return o
+}
+
+func (this *GoUiCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoUiCoder) GetOptions() (r []*Option) {

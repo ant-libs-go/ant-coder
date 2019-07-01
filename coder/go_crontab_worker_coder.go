@@ -14,12 +14,14 @@ import (
 )
 
 type GoCrontabWorkerCoder struct {
+	name string
 	opts []*Option
 	tpls []*Tpl
 }
 
 func NewGoCrontabWorkerCoder() *GoCrontabWorkerCoder {
 	o := &GoCrontabWorkerCoder{}
+	o.name = "go_crontab_worker"
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
@@ -42,6 +44,10 @@ func NewGoCrontabWorkerCoder() *GoCrontabWorkerCoder {
 		&Tpl{Src: "templates/go_crontab_worker/main.go", Dst: "main.go"},
 	}
 	return o
+}
+
+func (this *GoCrontabWorkerCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoCrontabWorkerCoder) GetOptions() (r []*Option) {

@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"ant-coder/coder"
+	"ant-coder/coder/config"
 )
 
 // pass through when build project, go build -ldflags "main.__version__ 1.2.1" app
@@ -48,6 +49,10 @@ func init() {
 
 	if len(scene) == 0 {
 		fmt.Println("you must specify `-s` option")
+		os.Exit(-1)
+	}
+	if err := config.SetPathAndLoad(os.Getenv("HOME")); err != nil {
+		fmt.Println(err)
 		os.Exit(-1)
 	}
 }

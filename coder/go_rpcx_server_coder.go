@@ -14,12 +14,14 @@ import (
 )
 
 type GoRpcxServerCoder struct {
+	name string
 	opts []*Option
 	tpls []*Tpl
 }
 
 func NewGoRpcxServerCoder() *GoRpcxServerCoder {
 	o := &GoRpcxServerCoder{}
+	o.name = "go_rpcx_server"
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
@@ -43,6 +45,10 @@ func NewGoRpcxServerCoder() *GoRpcxServerCoder {
 		&Tpl{Src: "templates/go_rpcx_server/test/client.go", Dst: "test/client.go"},
 	}
 	return o
+}
+
+func (this *GoRpcxServerCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoRpcxServerCoder) GetOptions() (r []*Option) {

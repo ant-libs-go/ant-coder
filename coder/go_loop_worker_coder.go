@@ -14,12 +14,14 @@ import (
 )
 
 type GoLoopWorkerCoder struct {
+	name string
 	opts []*Option
 	tpls []*Tpl
 }
 
 func NewGoLoopWorkerCoder() *GoLoopWorkerCoder {
 	o := &GoLoopWorkerCoder{}
+	o.name = "go_loop_worker"
 	o.opts = []*Option{
 		&Option{
 			Name:  "author",
@@ -43,6 +45,10 @@ func NewGoLoopWorkerCoder() *GoLoopWorkerCoder {
 		&Tpl{Src: "templates/go_loop_worker/main.go", Dst: "main.go"},
 	}
 	return o
+}
+
+func (this *GoLoopWorkerCoder) GetName() (r string) {
+	return this.name
 }
 
 func (this *GoLoopWorkerCoder) GetOptions() (r []*Option) {

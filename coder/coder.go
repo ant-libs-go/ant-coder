@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 	"path"
+
+	"ant-coder/coder/config"
 )
 
 type Option struct {
@@ -31,6 +33,7 @@ type Macro struct {
 }
 
 type Coder interface {
+	GetName() (r string)
 	GetOptions() (r []*Option)
 	GetTpls() (r []*Tpl)
 	Init() (err error)
@@ -72,6 +75,9 @@ func (this *Executor) Do() (err error) {
 
 func (this *Executor) inputOptions() (err error) {
 	for _, opt := range this.opts {
+		if opt.Cache == true {
+			opt.Default = config.Get(this.coder.GetName(), opt.Name, opt.Default)
+		}
 		var tips string
 		if len(opt.Default) > 0 {
 			tips = fmt.Sprintf("%s [%s] ", opt.Usage, opt.Default)
@@ -80,11 +86,14 @@ func (this *Executor) inputOptions() (err error) {
 		}
 
 		opt.Value = Scan(tips)
-		if len(opt.Value) > 0 {
-			continue
+		if len(opt.Value) == 0 {
+			opt.Value = opt.Default
 		}
-		opt.Value = opt.Default
+		if opt.Cache == true {
+			config.Set(this.coder.GetName(), opt.Name, opt.Value)
+		}
 	}
+	config.Save()
 	return
 }
 

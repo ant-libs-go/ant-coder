@@ -12,3 +12,4 @@ code generator
   - go\_ui: An api scaffold.
   - go\_loop\_worker: A loop worker.
   - go\_crontab\_worker: A crontab worker.
+  - go\_rpcx\_server: A rpcx server, see: https://github.com/smallnest/rpcx.
