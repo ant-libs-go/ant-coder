@@ -35,6 +35,7 @@ func NewGoRpcxServerCoder() *GoRpcxServerCoder {
 		&Tpl{Src: "templates/go_rpcx_server/conf/app.toml", Dst: "conf/app.toml"},
 		&Tpl{Src: "templates/go_rpcx_server/conf/log.xml", Dst: "conf/log.xml"},
 		&Tpl{Src: "templates/go_rpcx_server/handlers/handlers.go", Dst: "handlers/handlers.go"},
+		&Tpl{Src: "templates/go_rpcx_server/handlers/handlers_test.go", Dst: "handlers/handlers_test.go"},
 		&Tpl{Src: "templates/go_rpcx_server/handlers/default_handler.go", Dst: "handlers/default_handler.go"},
 		&Tpl{Src: "templates/go_rpcx_server/libs/config/config.go", Dst: "libs/config/config.go"},
 		&Tpl{Src: "templates/go_rpcx_server/libs/types.go", Dst: "libs/types.go"},
@@ -42,7 +43,6 @@ func NewGoRpcxServerCoder() *GoRpcxServerCoder {
 		&Tpl{Src: "templates/go_rpcx_server/.gitignore", Dst: ".gitignore"},
 		&Tpl{Src: "templates/go_rpcx_server/control.sh", Dst: "control.sh"},
 		&Tpl{Src: "templates/go_rpcx_server/main.go", Dst: "main.go"},
-		&Tpl{Src: "templates/go_rpcx_server/test/client.go", Dst: "test/client.go"},
 	}
 	return o
 }
