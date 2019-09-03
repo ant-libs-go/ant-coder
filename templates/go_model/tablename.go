@@ -8,11 +8,43 @@
 /**
  * Define constant:
  *
- * InfoStatus
- *   InfoStatus_Normal  0
- *   InfoStatus_Invalid 1
+ * type InfoStatus int
+ * const (
+ *   InfoStatusNormal  InfoStatus = 0
+ *   InfoStatusInvalid InfoStatus = 1
+ * )
+ *
+ * type SortType int64
+ *
+ * const (
+ *   SortTypeAsc  SortType = 0
+ *   SortTypeDesc SortType = 1
+ * )
+ *
+ * type SortParams struct {
+ *   Field string
+ *   Type  SortType
+ * }
+ *
+ * type Pager struct {
+ *   Offset int `form:"offset"`
+ *   Limit  int `form:"limit"`
+ * }
  *
  * ErrNotFound = errors.New("record is not found")
+ *
+ * func ParseSortParams(sorts []*common.SortParams) (r []string) {
+ *   r = []string{}
+ *   for _, sort := range sorts {
+ *     if sort.Type == enums.SortType_Asc {
+ *       r = append(r, fmt.Sprintf("%s ASC", sort.Field))
+ *     }
+ *     if sort.Type == enums.SortType_Desc {
+ *       r = append(r, fmt.Sprintf("%s DESC", sort.Field))
+ *     }
+ *   }
+ *   return
+ * }
  */
 
 package __TABLE_NAME__
@@ -49,9 +81,10 @@ type __TABLE_NAME_CAMEL__Query struct {
 	isNewRecord          bool          `xorm:"-"`
 }
 
-func New() *__TABLE_NAME_CAMEL__Query {
+func New(session *xorm.Session) *__TABLE_NAME_CAMEL__Query {
 	o := &__TABLE_NAME_CAMEL__Query{}
 	o.isNewRecord = true
+	o.session = session
 	return o
 }
 
