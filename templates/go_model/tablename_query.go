@@ -13,7 +13,6 @@ import (
 	"__PROJECT_NAME__/models"
 
 	"github.com/go-xorm/builder"
-	"github.com/go-xorm/xorm"
 )
 
 // r, r2, err := query.Active().Find()
@@ -41,32 +40,26 @@ func (this *__TABLE_NAME_CAMEL__Query) FindByIds(ids []int32) (r []*__TABLE_NAME
 /* create */
 // https://www.kancloud.cn/xormplus/xorm/167094
 // &__TABLE_NAME_CAMEL__{}
-func (this *__TABLE_NAME_CAMEL__Query) Insert(inp interface{}, session *xorm.Session) (err error) {
+func (this *__TABLE_NAME_CAMEL__Query) Insert(inp interface{}) (err error) {
 	this.Load(inp)
 	this.Status = models.InfoStatusNormal
 
-	if session != nil {
-		this.session = session
-	}
 	_, err = this.Session().Insert(&this.__TABLE_NAME_CAMEL__)
 	return
 }
 
 // []*__TABLE_NAME_CAMEL__{}
-func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inp []*__TABLE_NAME_CAMEL__, session *xorm.Session) (err error) {
+func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inp []*__TABLE_NAME_CAMEL__) (err error) {
 	for _, v := range inp {
 		v.Status = models.InfoStatusNormal
 	}
 
-	if session != nil {
-		this.session = session
-	}
 	_, err = this.Session().Insert(&inp)
 	return
 }
 
 /* update */
-func (this *__TABLE_NAME_CAMEL__Query) Update(inp interface{}, session *xorm.Session) (err error) {
+func (this *__TABLE_NAME_CAMEL__Query) Update(inp interface{}) (err error) {
 	if this.Id == 0 {
 		return errors.New("id is not set")
 	}
@@ -78,23 +71,17 @@ func (this *__TABLE_NAME_CAMEL__Query) Update(inp interface{}, session *xorm.Ses
 	}
 	this.Load(inp, "Id")
 
-	if session != nil {
-		this.session = session
-	}
 	_, err = this.Where(builder.Eq{"id": this.Id}).Session().Update(&this.__TABLE_NAME_CAMEL__)
 	return
 }
 
 /* delete */
-func (this *__TABLE_NAME_CAMEL__Query) Delete(session *xorm.Session) (err error) {
-	if session != nil {
-		this.session = session
-	}
+func (this *__TABLE_NAME_CAMEL__Query) Delete() (err error) {
 	return this.Cols("status").Update(&struct {
 		Status models.InfoStatus
 	}{
 		Status: models.InfoStatusInvalid,
-	}, nil)
+	})
 }
 
 /* update all */
@@ -102,12 +89,12 @@ func (this *__TABLE_NAME_CAMEL__Query) Delete(session *xorm.Session) (err error)
 
 /* insert or update */
 // notice: unsafe, unrealized
-func (this *__TABLE_NAME_CAMEL__Query) InsertOrUpdate(inp interface{}, keys builder.Cond, session *xorm.Session) (err error) {
+func (this *__TABLE_NAME_CAMEL__Query) InsertOrUpdate(inp interface{}, keys builder.Cond) (err error) {
 	return
 }
 
 /* get or insert */
 // notice: unsafe, unrealized
-func (this *__TABLE_NAME_CAMEL__Query) GetOrInsert(cond builder.Cond, inp interface{}, session *xorm.Session) (err error) {
+func (this *__TABLE_NAME_CAMEL__Query) GetOrInsert(cond builder.Cond, inp interface{}) (err error) {
 	return
 }
