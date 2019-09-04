@@ -152,9 +152,9 @@ func (this *__TABLE_NAME_CAMEL__Query) OrderBy(orders ...string) *__TABLE_NAME_C
 	return this
 }
 
-// r, r2, err := query.OrderBy("type", "status").Find()
+// r, r2, err := query.GroupBy("type", "status").Find()
 func (this *__TABLE_NAME_CAMEL__Query) GroupBy(groups ...string) *__TABLE_NAME_CAMEL__Query {
-	this.Session().OrderBy(strings.Join(groups, ", "))
+	this.Session().GroupBy(strings.Join(groups, ", "))
 	return this
 }
 
