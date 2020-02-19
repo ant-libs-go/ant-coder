@@ -12,6 +12,7 @@ import (
 	"net/http"
 
 	"github.com/ant-libs-go/util/logs"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -22,19 +23,21 @@ type User struct {
 }
 
 type Context struct {
-	ctx    *gin.Context
-	role   Role
-	Log    *logs.SessLog
-	params Params
-	user   *User
+	ctx     *gin.Context
+	role    Role
+	Log     *logs.SessLog
+	params  Params
+	user    *User
+	Session sessions.Session
 }
 
 func NewContext(ctx *gin.Context, role Role, params Params) (r *Context, isAllow bool) {
 	r = &Context{
-		ctx:    ctx,
-		role:   role,
-		Log:    logs.New(uuid.NewV4().String()),
-		params: params,
+		ctx:     ctx,
+		role:    role,
+		Log:     logs.New(uuid.NewV4().String()),
+		params:  params,
+		Session: sessions.Default(ctx),
 	}
 	r.ctx.Set("logger", r.Log)
 
@@ -72,16 +75,16 @@ func NewContext(ctx *gin.Context, role Role, params Params) (r *Context, isAllow
 
 func (this *Context) GetUser() *User {
 	if this.user == nil {
-		// TODO use token get user info
-		/*
-			r, err := GetUser(this.params.GetToken())
-			if err != nil {
-				this.Log.Warnf("get user error: %s", err.Error())
-				return nil
-			}
-			this.user = r
-		*/
+		if u := this.Session.Get("user"); u != nil {
+			this.user = u.(*User)
+		}
 	}
+	if this.user == nil {
+		if this.GetParams().GetUserId() > 0 {
+			this.user = &User{Id: this.GetParams().GetUserId()}
+		}
+	}
+
 	return this.user
 }
 
@@ -125,4 +128,13 @@ func (this *Context) RenderRealError(code HttpStatus, userE error, realE error) 
 		"msg":  userE.Error()}
 	this.Log.Infof("Response: %+v", h)
 	this.ctx.JSON(http.StatusOK, h)
+}
+
+func (this *Context) RenderRealServerError(realE error) {
+	this.RenderRealError(HttpStatusServerErr, errors.New("Server exception"), realE)
+}
+
+func (this *Context) RenderString(str string) {
+	this.Log.Infof("Response: %s", str)
+	this.ctx.String(http.StatusOK, str)
 }

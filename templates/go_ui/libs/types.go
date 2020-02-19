@@ -8,38 +8,24 @@
 package libs
 
 type Params interface {
-	GetCommonParams() *CommonParams
+	GetUserId() int32
 }
 
 type CommonParams struct {
-	Token string `form:"token" binding:""`
+	UserId int32 `form:"user_id" binding:""`
 }
 
-type Pager struct {
-	Page     int `form:"page"`
-	LastId   int `form:"last_id"`
-	PageSize int `form:"page_size"`
+func (this *CommonParams) GetUserId() int32 {
+	return this.UserId
 }
 
-func (this *CommonParams) GetToken() string {
-	return this.Token
-}
-
-func (this *CommonParams) GetCommonParams() *CommonParams {
-	return this
-}
-
-type LoginParams struct {
+type LoginReq struct {
 	CommonParams
 	Username string `form:"username" binding:""`
 	Passport string `form:"passport" binding:""`
 }
 
-func (this *LoginParams) GetCommonParams() *CommonParams {
-	return &this.CommonParams
-}
-
-type LoginResult struct {
+type LoginResp struct {
 	Token    string `json:"token"`
 	Username string `json:"username"`
 	Nickname string `json:"nickname"`
