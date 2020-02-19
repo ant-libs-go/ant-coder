@@ -9,7 +9,8 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/gin-gonic/gin v1.4.0
+	github.com/gin-contrib/sessions v0.0.3
+	github.com/gin-gonic/gin v1.5.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-xorm/builder v0.3.2
 	github.com/go-xorm/core v0.6.0
@@ -21,6 +22,8 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.9.0 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/prometheus/client_golang v0.9.3 // indirect
@@ -35,7 +38,9 @@ require (
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0 // indirect
+	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
+	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 )
 
 go 1.13
