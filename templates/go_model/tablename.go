@@ -33,13 +33,13 @@
  *
  * ErrNotFound = errors.New("record is not found")
  *
- * func ParseSortParams(sorts []*common.SortParams) (r []string) {
+ * func ParseSortParams(sorts []*SortParams) (r []string) {
  *   r = []string{}
  *   for _, sort := range sorts {
- *     if sort.Type == enums.SortType_Asc {
+ *     if sort.Type == SortTypeAsc {
  *       r = append(r, fmt.Sprintf("%s ASC", sort.Field))
  *     }
- *     if sort.Type == enums.SortType_Desc {
+ *     if sort.Type == SortTypeDesc {
  *       r = append(r, fmt.Sprintf("%s DESC", sort.Field))
  *     }
  *   }
