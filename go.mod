@@ -28,6 +28,7 @@ require (
 	github.com/robfig/cron v1.1.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/smallnest/rpcx v0.0.0-20190530121239-d90b4ba208ef
+	github.com/smartystreets/goconvey v0.0.0-20181108003508-044398e4856c
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
@@ -36,3 +37,5 @@ require (
 	go.uber.org/zap v1.10.0 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 )
+
+go 1.13

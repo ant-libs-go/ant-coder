@@ -24,18 +24,18 @@ func NewSiteController() *SiteController {
 	return o
 }
 
-func (this *SiteController) Ping(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "pong, test ok")
+func (this *SiteController) Ping(c *gin.Context) {
+	c.String(http.StatusOK, "pong, test ok")
 }
 
 func (this *SiteController) Login(c *gin.Context) {
-	p := &libs.LoginParams{}
-	ctx, isAllow := libs.NewContext(c, libs.RoleAuth, p)
+	ctx, isAllow := libs.NewContext(c, libs.RoleAuth, &libs.LoginReq{})
 	if !isAllow {
 		return
 	}
 
-	r := libs.LoginParams{}
+	p := ctx.GetParams().(*libs.LoginReq)
+	r := libs.LoginResp{}
 
 	// code in here
 
