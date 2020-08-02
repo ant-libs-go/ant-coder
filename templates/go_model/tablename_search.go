@@ -11,7 +11,7 @@ import (
 	"__PROJECT_NAME__/models"
 
 	"github.com/ant-libs-go/util"
-	"github.com/go-xorm/builder"
+	"xorm.io/builder"
 )
 
 type __TABLE_NAME_CAMEL__Search struct {
@@ -21,15 +21,11 @@ type __TABLE_NAME_CAMEL__Search struct {
 	query *__TABLE_NAME_CAMEL__Query
 }
 
-func NewSearch() *__TABLE_NAME_CAMEL__Search {
-	o := &__TABLE_NAME_CAMEL__Search{}
-	o.query = New(nil)
-	o.Limit = 100
-	return o
-}
-
 func (this *__TABLE_NAME_CAMEL__Search) Load(inp interface{}, excludes ...string) *__TABLE_NAME_CAMEL__Search {
-	util.Assign(inp, this, excludes...)
+	if err = util.Assign(inp, this, excludes...); err != nil {
+		fmt.Println(err)
+		return nil
+	}
 	return this
 }
 
@@ -38,21 +34,14 @@ func (this *__TABLE_NAME_CAMEL__Search) SetSort(sort []*models.SortParams) *__TA
 	return this
 }
 
-func (this *__TABLE_NAME_CAMEL__Search) FilterIds(ids []int32) *__TABLE_NAME_CAMEL__Search {
-	this.query.And(builder.Eq{"id": ids})
-	return this
-}
-
 func (this *__TABLE_NAME_CAMEL__Search) buildCond() *__TABLE_NAME_CAMEL__Query {
-	this.query.Active()
-
 	if this.Id > 0 {
 		this.query.And(builder.Eq{"id": this.Id})
 	}
 	/*
-		if len(this.Name) > 0 {
-			this.query.And(builder.Like{"name", this.Name})
-		}
+	   if len(this.Name) > 0 {
+	       this.query.And(builder.Like{"name", this.Name})
+	   }
 	*/
 	return this.query
 }
@@ -74,3 +63,5 @@ func (this *__TABLE_NAME_CAMEL__Search) Search() (r []*__TABLE_NAME_CAMEL__, r2 
 	}
 	return this.query.Find()
 }
+
+// vim: set noexpandtab ts=4 sts=4 sw=4 :

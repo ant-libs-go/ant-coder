@@ -15,7 +15,7 @@ import (
 
 	"github.com/ant-libs-go/util"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 )
 
 var (

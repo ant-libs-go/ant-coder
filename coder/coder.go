@@ -10,6 +10,7 @@ package coder
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 
 	"ant-coder/coder/config"
@@ -138,6 +139,9 @@ func (this *Executor) generate() (err error) {
 		}
 		if err = RenderTpl(tpl, fileContMacros); err != nil {
 			return
+		}
+		if err := exec.Command("gofmt", "-w", tpl.Dst).Run(); err != nil {
+			fmt.Println(fmt.Sprintf("gofmt file#%s, %+v. ignore...", tpl.Dst, err))
 		}
 	}
 	fmt.Println("....... render template\t[ok]")
