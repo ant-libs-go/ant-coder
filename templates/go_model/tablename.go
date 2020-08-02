@@ -8,41 +8,35 @@
 /**
  * Define constant:
  *
- * type InfoStatus int
- * const (
- *   InfoStatusNormal  InfoStatus = 0
- *   InfoStatusInvalid InfoStatus = 1
- * )
+ * ErrNotFound = errors.New("record is not found")
  *
  * type SortType int64
  *
  * const (
- *   SortTypeAsc  SortType = 0
- *   SortTypeDesc SortType = 1
+ * 	 SortTypeAsc  SortType = 0
+ * 	 SortTypeDesc SortType = 1
  * )
  *
  * type SortParams struct {
- *   Field string
- *   Type  SortType
+ * 	 Field string
+ * 	 Type  SortType
  * }
  *
  * type Pager struct {
- *   Offset int `form:"offset"`
- *   Limit  int `form:"limit"`
+ * 	 Offset int
+ * 	 Limit  int
  * }
  *
- * ErrNotFound = errors.New("record is not found")
- *
  * func ParseSortParams(sorts []*SortParams) (r []string) {
- *   r = []string{}
- *   for _, sort := range sorts {
+ * 	 r = []string{}
+ * 	 for _, sort := range sorts {
  *     if sort.Type == SortTypeAsc {
- *       r = append(r, fmt.Sprintf("%s ASC", sort.Field))
+ * 	     r = append(r, fmt.Sprintf("%s ASC", sort.Field))
+ * 	   }
+ * 	   if sort.Type == SortTypeDesc {
+ * 	     r = append(r, fmt.Sprintf("%s DESC", sort.Field))
  *     }
- *     if sort.Type == SortTypeDesc {
- *       r = append(r, fmt.Sprintf("%s DESC", sort.Field))
- *     }
- *   }
+ * 	 }
  *   return
  * }
  */
@@ -50,150 +44,146 @@
 package __TABLE_NAME__
 
 import (
-	"strings"
+	"fmt"
 
 	"__PROJECT_NAME__/models"
 
 	"github.com/ant-libs-go/util"
-	"github.com/go-xorm/builder"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 )
 
 type __TABLE_NAME_CAMEL__ struct {
+	isNewRecord bool          `xorm:"-"`
+	isAutoClose bool          `xorm:"-"`
+	session     *xorm.Session `xorm:"-"`
 	__TABLE_META_STRUCT__
 }
 
-func (this *__TABLE_NAME_CAMEL__) TableName() string {
-	return "__TABLE_NAME__"
-}
-
-/*
-func (this *__TABLE_NAME_CAMEL__) Format() (r *types.__TABLE_NAME_CAMEL__) {
-	r = &types.__TABLE_NAME_CAMEL__{}
-	util.Assign(this, r)
-	return
-}
-*/
-
-type __TABLE_NAME_CAMEL__Query struct {
-	__TABLE_NAME_CAMEL__ `xorm:"-"`
-	session              *xorm.Session `xorm:"-"`
-	isNewRecord          bool          `xorm:"-"`
-}
-
-func New(session *xorm.Session) *__TABLE_NAME_CAMEL__Query {
-	o := &__TABLE_NAME_CAMEL__Query{}
-	o.isNewRecord = true
-	o.session = session
+func New(session *xorm.Session) *__TABLE_NAME_CAMEL__ {
+	o := &__TABLE_NAME_CAMEL__{isNewRecord: true, session: session}
+	if session != nil {
+		o.isAutoClose = true
+	}
 	return o
 }
 
-func (this *__TABLE_NAME_CAMEL__Query) Orm() (r *xorm.EngineGroup) {
+func (this *__TABLE_NAME_CAMEL__) Orm() (r *xorm.EngineGroup) {
 	return models.Orm
 }
 
-func (this *__TABLE_NAME_CAMEL__Query) Session() (r *xorm.Session) {
+func (this *__TABLE_NAME_CAMEL__) Session() (r *xorm.Session) {
 	if this.session == nil {
 		this.session = this.Orm().NewSession().Table(this)
 	}
 	return this.session
 }
 
-func (this *__TABLE_NAME_CAMEL__Query) Load(inp interface{}, excludes ...string) *__TABLE_NAME_CAMEL__Query {
-	util.Assign(inp, this, excludes...)
+func (this *__TABLE_NAME_CAMEL__) TableName() string {
+	return "__TABLE_NAME__"
+}
+
+func (this *__TABLE_NAME_CAMEL__) Load(inp interface{}, excludes ...string) *__TABLE_NAME_CAMEL__ {
+	if err := util.Assign(inp, this, excludes...); err != nil {
+		fmt.Println(err)
+		return nil
+	}
 	if this.Id != 0 {
 		this.isNewRecord = false
 	}
 	return this
 }
 
-// r, err := query.SQL("select * from test where id = ?", 2).Get()
-func (this *__TABLE_NAME_CAMEL__Query) SQL(query string, params ...interface{}) (r *__TABLE_NAME_CAMEL__Query) {
-	this.Session().Sql(query, params...)
-	return this
-}
+func (this *__TABLE_NAME_CAMEL__) BeforeValidate()                       {}
+func (this *__TABLE_NAME_CAMEL__) AfterValidate()                        {}
+func (this *__TABLE_NAME_CAMEL__) BeforeSave()                           {}
+func (this *__TABLE_NAME_CAMEL__) AfterSave()                            {}
+func (this *__TABLE_NAME_CAMEL__) BeforeInsert()                         {}
+func (this *__TABLE_NAME_CAMEL__) AfterInsert()                          {}
+func (this *__TABLE_NAME_CAMEL__) BeforeUpdate()                         {}
+func (this *__TABLE_NAME_CAMEL__) AfterUpdate()                          {}
+func (this *__TABLE_NAME_CAMEL__) BeforeDelete()                         {}
+func (this *__TABLE_NAME_CAMEL__) AfterDelete()                          {}
+func (this *__TABLE_NAME_CAMEL__) BeforeSet(name string, cell xorm.Cell) {}
+func (this *__TABLE_NAME_CAMEL__) AfterSet(name string, cell xorm.Cell)  { this.isNewRecord = false }
 
-/* cond */
-// r, err := query.Where(builder.Eq{"id": 3}).Get()
-// r, err := query.Where(builder.Eq{"id": 3, "status": 0}).Get()
-func (this *__TABLE_NAME_CAMEL__Query) Where(cond builder.Cond) *__TABLE_NAME_CAMEL__Query {
-	this.Session().Where(cond)
-	return this
-}
+func (this *__TABLE_NAME_CAMEL__) Validate() (err error) {
+	this.BeforeValidate()
+	defer this.AfterValidate()
 
-// r, err := query.Where(builder.Eq{"id": 3}).And(builder.Eq{"status": 0}).Get()
-func (this *__TABLE_NAME_CAMEL__Query) And(cond builder.Cond) *__TABLE_NAME_CAMEL__Query {
-	this.Session().And(cond)
-	return this
-}
-
-// r, err := query.Where(builder.Eq{"id": 3}).Or(builder.Eq{"status": 0}).Get()
-func (this *__TABLE_NAME_CAMEL__Query) Or(cond builder.Cond) *__TABLE_NAME_CAMEL__Query {
-	this.Session().Or(cond)
-	return this
-}
-
-/* misc */
-// r, err := query.Cols("id", "name").Where(builder.Eq{"id": 3}).Get()
-func (this *__TABLE_NAME_CAMEL__Query) Cols(cols ...string) *__TABLE_NAME_CAMEL__Query {
-	this.Session().Cols(cols...)
-	return this
-}
-
-// r, err := query.Select("id, name").Where(builder.Eq{"id": 3}).Get()
-func (this *__TABLE_NAME_CAMEL__Query) Select(str string) *__TABLE_NAME_CAMEL__Query {
-	this.Session().Select(str)
-	return this
-}
-
-// r, r2, err := query.Where(builder.Eq{"id": 3}).OrderBy("id desc", "tid asc").Find()
-func (this *__TABLE_NAME_CAMEL__Query) OrderBy(orders ...string) *__TABLE_NAME_CAMEL__Query {
-	this.Session().OrderBy(strings.Join(orders, ", "))
-	return this
-}
-
-// r, r2, err := query.GroupBy("type", "status").Find()
-func (this *__TABLE_NAME_CAMEL__Query) GroupBy(groups ...string) *__TABLE_NAME_CAMEL__Query {
-	this.Session().GroupBy(strings.Join(groups, ", "))
-	return this
-}
-
-// r, err := query.Where(builder.Eq{"id": 3}).Limit(1, 1).Get()
-func (this *__TABLE_NAME_CAMEL__Query) Limit(limit int, offset ...int) *__TABLE_NAME_CAMEL__Query {
-	this.Session().Limit(limit, offset...)
-	return this
-}
-
-/* query */
-func (this *__TABLE_NAME_CAMEL__Query) Get() (r *__TABLE_NAME_CAMEL__, err error) {
-	r = &__TABLE_NAME_CAMEL__{}
-	has, err := this.Session().Get(r)
-	if err != nil {
-		return nil, err
-	}
-	if has == false {
-		return nil, models.ErrNotFound
-	}
-
-	this.Load(r)
 	return
 }
 
-func (this *__TABLE_NAME_CAMEL__Query) Find() (r []*__TABLE_NAME_CAMEL__, r2 map[int32]*__TABLE_NAME_CAMEL__, err error) {
-	err = this.Session().Find(&r)
-	r2 = map[int32]*__TABLE_NAME_CAMEL__{}
-	for _, m := range r {
-		r2[m.Id] = m
+func (this *__TABLE_NAME_CAMEL__) Save(runValidation bool) (err error) {
+	this.BeforeSave()
+	defer this.AfterSave()
+
+	if this.isNewRecord == true {
+		return this.Insert(runValidation)
+	}
+	return this.Update(runValidation)
+}
+
+func (this *__TABLE_NAME_CAMEL__) Insert(runValidation bool) (err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	if this.isNewRecord == false {
+		return fmt.Errorf("record already exists")
+	}
+	if err = this.Validate(); err != nil {
+		return
+	}
+	this.Id, err = this.Session().Insert(this)
+	return
+}
+
+func (this *__TABLE_NAME_CAMEL__) Update(runValidation bool, columns ...string) (err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	if this.isNewRecord == true {
+		return fmt.Errorf("record don't exist")
+	}
+	if err = this.Validate(); err != nil {
+		return
+	}
+	sess := this.Session().ID(this.Id)
+	if len(columns) > 0 {
+		sess = sess.Cols(columns...)
+	}
+	var affected int64
+	if affected, err = sess.Update(this); err != nil {
+		return
+	}
+	if affected == 0 {
+		return fmt.Errorf("record is not found")
 	}
 	return
 }
 
-// r, err := query.Count()
-func (this *__TABLE_NAME_CAMEL__Query) Count() (r int64, err error) {
-	return this.Session().Count(&__TABLE_NAME_CAMEL__{})
+func (this *__TABLE_NAME_CAMEL__) Delete() (err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	if this.isNewRecord == true {
+		return fmt.Errorf("record don't exist")
+	}
+	var affected int64
+	if affected, err = this.Session().ID(this.Id).Delete(&__TABLE_NAME_CAMEL__{}); err != nil {
+		return
+	}
+	if affected == 0 {
+		return fmt.Errorf("record is not found")
+	}
+	return
 }
 
-// r, err := query.Where(builder.Eq{"id": 2}).Exist()
-func (this *__TABLE_NAME_CAMEL__Query) Exist() (r bool, err error) {
-	return this.Session().Exist(&__TABLE_NAME_CAMEL__{})
+func (this *__TABLE_NAME_CAMEL__) Query() *__TABLE_NAME_CAMEL__Query {
+	return &__TABLE_NAME_CAMEL__Query{isAutoClose: this.isAutoClose, session: this.Session()}
 }
+
+func (this *__TABLE_NAME_CAMEL__) Search() *__TABLE_NAME_CAMEL__Search {
+	return &__TABLE_NAME_CAMEL__Search{query: this.Query(), Pager: models.Pager{Limit: 100}}
+}
+
+// vim: set noexpandtab ts=4 sts=4 sw=4 :

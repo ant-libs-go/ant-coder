@@ -8,84 +8,201 @@
 package __TABLE_NAME__
 
 import (
-	"errors"
+	"fmt"
+	"strings"
 
 	"__PROJECT_NAME__/models"
 
-	"github.com/go-xorm/builder"
+	"xorm.io/builder"
+	"xorm.io/xorm"
 )
 
-// r, r2, err := query.Active().Find()
-func (this *__TABLE_NAME_CAMEL__Query) Active() *__TABLE_NAME_CAMEL__Query {
-	return this.And(builder.Eq{"status": models.InfoStatusNormal})
+type __TABLE_NAME_CAMEL__Query struct {
+	isAutoClose bool
+	session     *xorm.Session
 }
 
-/* query */
-// r, err := query.GetById(2)
-func (this *__TABLE_NAME_CAMEL__Query) GetById(id int32) (r *__TABLE_NAME_CAMEL__, err error) {
-	if id == 0 {
-		return
+func (this *__TABLE_NAME_CAMEL__Query) Session() (r *xorm.Session) {
+	return this.session
+}
+
+/* basic query */
+
+func (this *__TABLE_NAME_CAMEL__Query) Get() (r *__TABLE_NAME_CAMEL__, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
 	}
-	return this.Where(builder.Eq{"id": id}).Get()
-}
-
-// r, r2, err := query.GetByIds([]int32{1, 2})
-func (this *__TABLE_NAME_CAMEL__Query) FindByIds(ids []int32) (r []*__TABLE_NAME_CAMEL__, r2 map[int32]*__TABLE_NAME_CAMEL__, err error) {
-	if len(ids) == 0 {
-		return
+	r = &__TABLE_NAME_CAMEL__{}
+	has, err := this.Session().Get(r)
+	if err != nil {
+		return nil, err
 	}
-	return this.Where(builder.Eq{"id": ids}).Find()
+	if has == false {
+		return nil, models.ErrNotFound
+	}
+	return
 }
 
-/* create */
-// https://www.kancloud.cn/xormplus/xorm/167094
-// &__TABLE_NAME_CAMEL__{}
+func (this *__TABLE_NAME_CAMEL__Query) Find() (r []*__TABLE_NAME_CAMEL__, r2 map[int32]*__TABLE_NAME_CAMEL__, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	err = this.Session().Find(&r)
+	r2 = make(map[int32]*__TABLE_NAME_CAMEL__, len(r))
+	for _, m := range r {
+		r2[m.Id] = m
+	}
+	return
+}
+
+func (this *__TABLE_NAME_CAMEL__Query) Count() (r int64, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().Count(&__TABLE_NAME_CAMEL__{})
+}
+
+func (this *__TABLE_NAME_CAMEL__Query) SumFloat(column string) (r float64, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().Sum(&__TABLE_NAME_CAMEL__{}, column)
+}
+
+func (this *__TABLE_NAME_CAMEL__Query) SumInt(column string) (r int64, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().SumInt(&__TABLE_NAME_CAMEL__{}, column)
+}
+
+func (this *__TABLE_NAME_CAMEL__Query) SumsFloat(columns ...string) (r []float64, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().Sums(&__TABLE_NAME_CAMEL__{}, columns...)
+}
+
+func (this *__TABLE_NAME_CAMEL__Query) SumsInt(columns ...string) (r []int64, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().SumsInt(&__TABLE_NAME_CAMEL__{}, columns...)
+}
+
+func (this *__TABLE_NAME_CAMEL__Query) Exist() (r bool, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().Exist(&__TABLE_NAME_CAMEL__{})
+}
+
+/*
+	rows, err := engine.Rows(&user{})
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(user)
+	}
+*/
+func (this *__TABLE_NAME_CAMEL__Query) Rows() (r *xorm.Rows, err error) {
+	if this.isAutoClose == true {
+		defer this.Session().Close()
+	}
+	return this.Session().Rows(&__TABLE_NAME_CAMEL__{})
+}
+
+/* cond */
+
+// r, err := query.SQL("select * from test where id = ?", 2).Get()
+func (this *__TABLE_NAME_CAMEL__Query) SQL(query string, params ...interface{}) (r *__TABLE_NAME_CAMEL__Query) {
+	this.Session().SQL(query, params...)
+	return this
+}
+
+// r, err := query.Where(builder.Eq{"id": 3}).Get()
+// r, err := query.Where(builder.Eq{"id": 3, "status": 0}).Get()
+func (this *__TABLE_NAME_CAMEL__Query) Where(cond builder.Cond) *__TABLE_NAME_CAMEL__Query {
+	this.Session().Where(cond)
+	return this
+}
+
+// r, err := query.Where(builder.Eq{"id": 3}).And(builder.Eq{"status": 0}).Get()
+func (this *__TABLE_NAME_CAMEL__Query) And(cond builder.Cond) *__TABLE_NAME_CAMEL__Query {
+	this.Session().And(cond)
+	return this
+}
+
+// r, err := query.Where(builder.Eq{"id": 3}).Or(builder.Eq{"status": 0}).Get()
+func (this *__TABLE_NAME_CAMEL__Query) Or(cond builder.Cond) *__TABLE_NAME_CAMEL__Query {
+	this.Session().Or(cond)
+	return this
+}
+
+/* misc */
+
+// r, err := query.Cols("id", "name").Where(builder.Eq{"id": 3}).Get()
+func (this *__TABLE_NAME_CAMEL__Query) Cols(cols ...string) *__TABLE_NAME_CAMEL__Query {
+	this.Session().Cols(cols...)
+	return this
+}
+
+// 查询或更新所有字段，常与Update配合使用，因Update默认只更新非0非bool字段
+// r, err := query.AllCols().Where(builder.Eq{"id": 3}).Get()
+func (this *__TABLE_NAME_CAMEL__Query) AllCols() *__TABLE_NAME_CAMEL__Query {
+	this.Session().AllCols()
+	return this
+}
+
+// 与Cols相反
+// r, err := query.Omit("id", "name").Where(builder.Eq{"id": 3}).Update(&User)
+func (this *__TABLE_NAME_CAMEL__Query) Omit(cols ...string) *__TABLE_NAME_CAMEL__Query {
+	this.Session().Omit(cols...)
+	return this
+}
+
+// r, err := query.Select("id, name").Where(builder.Eq{"id": 3}).Get()
+func (this *__TABLE_NAME_CAMEL__Query) Select(str string) *__TABLE_NAME_CAMEL__Query {
+	this.Session().Select(str)
+	return this
+}
+
+// r, r2, err := query.Where(builder.Eq{"id": 3}).OrderBy("id desc", "tid asc").Find()
+func (this *__TABLE_NAME_CAMEL__Query) OrderBy(orders ...string) *__TABLE_NAME_CAMEL__Query {
+	this.Session().OrderBy(strings.Join(orders, ", "))
+	return this
+}
+
+// r, r2, err := query.GroupBy("type", "status").Find()
+func (this *__TABLE_NAME_CAMEL__Query) GroupBy(groups ...string) *__TABLE_NAME_CAMEL__Query {
+	this.Session().GroupBy(strings.Join(groups, ", "))
+	return this
+}
+
+// r, err := query.Where(builder.Eq{"id": 3}).Limit(1, 1).Get()
+func (this *__TABLE_NAME_CAMEL__Query) Limit(limit int, offset ...int) *__TABLE_NAME_CAMEL__Query {
+	this.Session().Limit(limit, offset...)
+	return this
+}
+
+/* business */
+
+// &Struct{}
 func (this *__TABLE_NAME_CAMEL__Query) Insert(inp interface{}) (err error) {
-	this.Load(inp)
-	this.Status = models.InfoStatusNormal
-
-	_, err = this.Session().Insert(&this.__TABLE_NAME_CAMEL__)
+	m := &__TABLE_NAME_CAMEL__{}
+	_, err = this.Session().Insert(m.Load(inp))
 	return
 }
 
-// []*__TABLE_NAME_CAMEL__{}
-func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inp []*__TABLE_NAME_CAMEL__) (err error) {
-	for _, v := range inp {
-		v.Status = models.InfoStatusNormal
+// []*Struct{}
+func (this *__TABLE_NAME_CAMEL__Query) InsertAll(inps ...interface{}) (err error) {
+	ms := []*__TABLE_NAME_CAMEL__{}
+	for _, inp := range inps {
+		m := &__TABLE_NAME_CAMEL__{}
+		ms = append(ms, m.Load(inp))
 	}
-
-	_, err = this.Session().Insert(&inp)
+	_, err = this.Session().Insert(ms)
 	return
 }
-
-/* update */
-func (this *__TABLE_NAME_CAMEL__Query) Update(inp interface{}) (err error) {
-	if this.Id == 0 {
-		return errors.New("id is not set")
-	}
-	if this.isNewRecord == true {
-		_, err = this.GetById(this.Id)
-		if err != nil {
-			return
-		}
-	}
-	this.Load(inp, "Id")
-
-	_, err = this.Where(builder.Eq{"id": this.Id}).Session().Update(&this.__TABLE_NAME_CAMEL__)
-	return
-}
-
-/* delete */
-func (this *__TABLE_NAME_CAMEL__Query) Delete() (err error) {
-	return this.Cols("status").Update(&struct {
-		Status models.InfoStatus
-	}{
-		Status: models.InfoStatusInvalid,
-	})
-}
-
-/* update all */
-/* delete all */
 
 /* insert or update */
 // notice: unsafe, unrealized
@@ -98,3 +215,11 @@ func (this *__TABLE_NAME_CAMEL__Query) InsertOrUpdate(inp interface{}, keys buil
 func (this *__TABLE_NAME_CAMEL__Query) GetOrInsert(cond builder.Cond, inp interface{}) (err error) {
 	return
 }
+
+__BUSINESS_FUNCTIONS__
+
+/* user custom */
+
+// ....
+
+// vim: set noexpandtab ts=4 sts=4 sw=4 :
