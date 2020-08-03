@@ -8,7 +8,6 @@
 package __TABLE_NAME__
 
 import (
-	"fmt"
 	"strings"
 
 	"__PROJECT_NAME__/models"

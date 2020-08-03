@@ -133,7 +133,9 @@ func (this *__TABLE_NAME_CAMEL__) Insert(runValidation bool) (err error) {
 	if err = this.Validate(); err != nil {
 		return
 	}
-	this.Id, err = this.Session().Insert(this)
+	var id int64
+	id, err = this.Session().Insert(this)
+	this.Id = int32(id)
 	return
 }
 

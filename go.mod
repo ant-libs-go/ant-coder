@@ -10,6 +10,7 @@ require (
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	xorm.io/builder v0.3.7
 	xorm.io/xorm v1.0.3
 )
 
