@@ -9,6 +9,7 @@ package __TABLE_NAME__
 
 import (
 	"__PROJECT_NAME__/models"
+	"fmt"
 
 	"github.com/ant-libs-go/util"
 	"xorm.io/builder"
@@ -22,7 +23,7 @@ type __TABLE_NAME_CAMEL__Search struct {
 }
 
 func (this *__TABLE_NAME_CAMEL__Search) Load(inp interface{}, excludes ...string) *__TABLE_NAME_CAMEL__Search {
-	if err = util.Assign(inp, this, excludes...); err != nil {
+	if err := util.Assign(inp, this, excludes...); err != nil {
 		fmt.Println(err)
 		return nil
 	}
