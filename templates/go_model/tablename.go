@@ -61,7 +61,7 @@ type __TABLE_NAME_CAMEL__ struct {
 
 func New(session *xorm.Session) *__TABLE_NAME_CAMEL__ {
 	o := &__TABLE_NAME_CAMEL__{isNewRecord: true, session: session}
-	if session != nil {
+	if session == nil {
 		o.isAutoClose = true
 	}
 	return o
@@ -130,12 +130,12 @@ func (this *__TABLE_NAME_CAMEL__) Insert(runValidation bool) (err error) {
 	if this.isNewRecord == false {
 		return fmt.Errorf("record already exists")
 	}
-	if err = this.Validate(); err != nil {
-		return
+	if runValidation == true {
+		if err = this.Validate(); err != nil {
+			return
+		}
 	}
-	var id int64
-	id, err = this.Session().Insert(this)
-	this.Id = int32(id)
+	_, err = this.Session().Insert(this)
 	return
 }
 
@@ -146,8 +146,10 @@ func (this *__TABLE_NAME_CAMEL__) Update(runValidation bool, columns ...string) 
 	if this.isNewRecord == true {
 		return fmt.Errorf("record don't exist")
 	}
-	if err = this.Validate(); err != nil {
-		return
+	if runValidation == true {
+		if err = this.Validate(); err != nil {
+			return
+		}
 	}
 	sess := this.Session().ID(this.Id)
 	if len(columns) > 0 {
